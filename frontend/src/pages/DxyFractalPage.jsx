@@ -789,7 +789,7 @@ const DxyFractalPage = () => {
         </div>
         
         {/* Verdict Card */}
-        <VerdictCard verdict={data.verdict} />
+        <VerdictCard verdict={data.verdict} horizon={horizon} onHorizonChange={setHorizon} />
         
         {/* Chart Mode Switcher */}
         <div className="bg-white rounded-xl p-4 mb-6">
