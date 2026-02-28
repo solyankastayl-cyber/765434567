@@ -96,7 +96,7 @@ export function useSpxMacroOverlay(horizon) {
 // MACRO INFO PANEL
 // ═══════════════════════════════════════════════════════════════
 
-export function SpxMacroInfoPanel({ meta }: { meta: MacroOverlayMeta }) {
+export function SpxMacroInfoPanel({ meta }) {
   if (!meta) return null;
 
   return (
