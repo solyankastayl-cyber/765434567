@@ -753,15 +753,15 @@ const MacroBlock = ({ macro }) => {
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════
 
-const DxyFractalPage = () => {
+const SpxFractalPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [horizon, setHorizon] = useState(90);
-  const [chartMode, setChartMode] = useState('macro');
+  const [horizon, setHorizon] = useState(30);
+  const [chartMode, setChartMode] = useState('hybrid');
   
-  // Focus string for chart (e.g., '90d')
-  const focusStr = horizon <= 7 ? '7d' : horizon <= 14 ? '14d' : horizon <= 30 ? '30d' : horizon <= 90 ? '90d' : horizon <= 180 ? '180d' : '1y';
+  // Focus string for chart (e.g., '30d')
+  const focusStr = horizon <= 7 ? '7d' : horizon <= 14 ? '14d' : horizon <= 30 ? '30d' : horizon <= 90 ? '90d' : horizon <= 180 ? '180d' : '365d';
   
   // Use existing focusPack hook for chart data
   const { data: focusData, loading: chartLoading, forecast, overlay } = useFocusPack('SPX', focusStr);
@@ -769,11 +769,49 @@ const DxyFractalPage = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/api/ui/fractal/spx/overview?h=${horizon}`);
+      // Fetch SPX data from fractal API
+      const response = await fetch(`${API_URL}/api/fractal/spx?focus=${focusStr}`);
       const result = await response.json();
       
       if (result.ok) {
-        setData(result);
+        // Transform SPX data to match expected format
+        const spxData = result.data || {};
+        const decision = spxData.decision || {};
+        const horizonData = spxData.horizons?.[focusStr] || {};
+        const chartData = spxData.chartData || {};
+        const phase = spxData.phaseEngine?.currentPhase || spxData.phase?.phase || 'NEUTRAL';
+        
+        const transformedData = {
+          header: {
+            signal: decision.signal || 'HOLD',
+            confidence: decision.confidence || 50,
+            risk: decision.riskLevel || 'NORMAL',
+            regime: phase,
+            asOf: spxData.contract?.asOf || new Date().toISOString(),
+            dataStatus: 'REAL',
+          },
+          verdict: {
+            action: decision.signal || 'HOLD',
+            bias: horizonData.medianReturn > 0 ? 'SPX_UP' : horizonData.medianReturn < 0 ? 'SPX_DOWN' : 'NEUTRAL',
+            expectedMoveP50: (horizonData.medianReturn || 0) * 100,
+            rangeP10: (horizonData.p10Return || -0.05) * 100,
+            rangeP90: (horizonData.p90Return || 0.05) * 100,
+            positionMultiplier: decision.positionSize || 1,
+            confidence: decision.confidence || 50,
+            horizon: horizon,
+            invalidations: decision.invalidations || [],
+          },
+          risk: {
+            level: decision.riskLevel || 'NORMAL',
+            volatility: horizonData.volatility || 'MEDIUM',
+            positionCap: decision.positionCap || 100,
+            reason: decision.riskReason || '',
+          },
+          currentPrice: chartData.path?.[chartData.path?.length - 1] || spxData.contract?.lastPrice || 6000,
+          generatedAt: new Date().toISOString(),
+        };
+        
+        setData(transformedData);
         setError(null);
       } else {
         setError(result.error || 'Failed to fetch data');
