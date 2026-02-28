@@ -1,5 +1,5 @@
 /**
- * SPX FRACTAL PAGE — Decision Engine Approach (Mirror of DXY)
+ * SPX FRACTAL PAGE — Decision Engine Approach (Mirror of SPX)
  * 
  * Structure:
  * 0) Header Strip (Signal, Confidence, Risk, Phase)
@@ -132,17 +132,17 @@ const Tooltip = ({ children, content }) => {
 const TOOLTIPS = {
   verdict: (
     <div className="space-y-1">
-      <p className="font-medium">DXY Verdict</p>
+      <p className="font-medium">SPX Verdict</p>
       <p className="text-gray-300">Market state assessment from fractal + macro analysis.</p>
       <p><span className="text-emerald-400">Market State</span> — BULLISH / BEARISH / HOLD</p>
-      <p><span className="text-emerald-400">Directional Bias</span> — USD direction (↑/↓)</p>
+      <p><span className="text-emerald-400">Directional Bias</span> — SPX direction (↑/↓)</p>
       <p><span className="text-amber-400">Expected Move</span> — P50 return estimate</p>
     </div>
   ),
   synthetic: (
     <div className="space-y-1">
       <p className="font-medium">Synthetic (Baseline Fractal)</p>
-      <p className="text-gray-300">Model-generated forecast using DXY historical patterns and current market structure.</p>
+      <p className="text-gray-300">Model-generated forecast using SPX historical patterns and current market structure.</p>
     </div>
   ),
   replay: (
@@ -193,7 +193,7 @@ const TOOLTIPS = {
       <p><span className="text-emerald-400">Fed Funds</span> — Monetary policy stance</p>
       <p><span className="text-emerald-400">Inflation</span> — CPI/PPI trends</p>
       <p><span className="text-emerald-400">Credit</span> — Risk appetite signals</p>
-      <p className="text-amber-400 mt-1">Positive = USD support, Negative = USD pressure</p>
+      <p className="text-amber-400 mt-1">Positive = SPX support, Negative = SPX pressure</p>
     </div>
   ),
 };
@@ -207,8 +207,8 @@ const HeaderStrip = ({ header, verdict }) => {
   
   // Convert to state-oriented terminology
   const marketState = actionToState(header.signal, verdict?.bias);
-  const stateLabel = marketState === 'BULLISH' ? 'BULLISH USD' : 
-                     marketState === 'BEARISH' ? 'BEARISH USD' : 'HOLD';
+  const stateLabel = marketState === 'BULLISH' ? 'BULLISH SPX' : 
+                     marketState === 'BEARISH' ? 'BEARISH SPX' : 'HOLD';
   
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-3">
@@ -329,7 +329,7 @@ const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
     <div className="bg-white rounded-xl p-6 mb-6">
       <div className="relative mb-4 flex items-center gap-3">
         <Tooltip content={TOOLTIPS.verdict}>
-          <h2 className="text-xl font-semibold text-gray-900">DXY Verdict</h2>
+          <h2 className="text-xl font-semibold text-gray-900">SPX Verdict</h2>
         </Tooltip>
         <HorizonDropdown value={horizon} onChange={onHorizonChange} />
       </div>
@@ -347,8 +347,8 @@ const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Directional Bias</p>
           <div className="flex items-center gap-2">
-            <span className={`text-xl font-bold ${verdict.bias === 'USD_UP' ? 'text-emerald-600' : verdict.bias === 'USD_DOWN' ? 'text-red-500' : 'text-gray-500'}`}>
-              USD {biasArrow}
+            <span className={`text-xl font-bold ${verdict.bias === 'SPX_UP' ? 'text-emerald-600' : verdict.bias === 'SPX_DOWN' ? 'text-red-500' : 'text-gray-500'}`}>
+              SPX {biasArrow}
             </span>
           </div>
         </div>
@@ -764,12 +764,12 @@ const DxyFractalPage = () => {
   const focusStr = horizon <= 7 ? '7d' : horizon <= 14 ? '14d' : horizon <= 30 ? '30d' : horizon <= 90 ? '90d' : horizon <= 180 ? '180d' : '1y';
   
   // Use existing focusPack hook for chart data
-  const { data: focusData, loading: chartLoading, forecast, overlay } = useFocusPack('DXY', focusStr);
+  const { data: focusData, loading: chartLoading, forecast, overlay } = useFocusPack('SPX', focusStr);
   
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/api/ui/fractal/dxy/overview?h=${horizon}`);
+      const response = await fetch(`${API_URL}/api/ui/fractal/spx/overview?h=${horizon}`);
       const result = await response.json();
       
       if (result.ok) {
@@ -794,7 +794,7 @@ const DxyFractalPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Activity className="w-12 h-12 text-gray-300 mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-500">Loading DXY Fractal...</p>
+          <p className="text-gray-500">Loading SPX Fractal...</p>
         </div>
       </div>
     );
@@ -827,8 +827,8 @@ const DxyFractalPage = () => {
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Title */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">DXY Fractal Research</h1>
-          <p className="text-gray-500">Dollar Index Analysis & Macro Overlay</p>
+          <h1 className="text-2xl font-bold text-gray-900">SPX Fractal Research</h1>
+          <p className="text-gray-500">S&P 500 Index Analysis & Macro Overlay</p>
         </div>
         
         {/* Verdict Card */}
@@ -841,7 +841,7 @@ const DxyFractalPage = () => {
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-semibold text-gray-900 tracking-tight">{Math.floor(data.currentPrice || 0)}</span>
               <span className="text-lg font-medium text-gray-400">.{((data.currentPrice || 0) % 1).toFixed(2).slice(2)}</span>
-              <span className="text-xs text-gray-400 ml-1">DXY</span>
+              <span className="text-xs text-gray-400 ml-1">SPX</span>
             </div>
           </div>
           {/* Real Chart - different components for different modes */}
@@ -855,7 +855,7 @@ const DxyFractalPage = () => {
                 {/* Synthetic = FractalMainChart (price chart with forecast) */}
                 {chartMode === 'synthetic' && (
                   <FractalMainChart 
-                    symbol="DXY" 
+                    symbol="SPX" 
                     width={1100} 
                     height={460}
                     focus={focusStr}
@@ -867,7 +867,7 @@ const DxyFractalPage = () => {
                 {/* Replay = FractalOverlaySection (historical matches overlay) */}
                 {chartMode === 'replay' && (
                   <FractalOverlaySection 
-                    symbol="DXY"
+                    symbol="SPX"
                     focus={focusStr}
                     focusPack={focusData}
                   />
@@ -876,7 +876,7 @@ const DxyFractalPage = () => {
                 {/* Hybrid = FractalHybridChart (combined synthetic + replay) */}
                 {chartMode === 'hybrid' && (
                   <FractalHybridChart
-                    symbol="DXY"
+                    symbol="SPX"
                     width={1100}
                     height={460}
                     focus={focusStr}
@@ -889,7 +889,7 @@ const DxyFractalPage = () => {
                 {/* Macro = FractalHybridChart with macro mode (hybrid + macro adjustment) */}
                 {chartMode === 'macro' && (
                   <FractalHybridChart
-                    symbol="DXY"
+                    symbol="SPX"
                     width={1100}
                     height={460}
                     focus={focusStr}
