@@ -636,8 +636,8 @@ function App() {
               <Route path="/fractal/matches" element={<FractalPage />} />
               <Route path="/fractal/backtest" element={<FractalPage />} />
               {/* SPX Fractal — Uses unified FractalPage with asset="SPX" */}
-              <Route path="/fractal/spx" element={<SpxFractalPage />} />
-              <Route path="/spx/fractal" element={<SpxFractalPage />} />
+              <Route path="/fractal/spx" element={<FractalPage asset="SPX" />} />
+              <Route path="/spx/fractal" element={<FractalPage asset="SPX" />} />
               
               {/* DXY Fractal — P6 UI ENABLED */}
               {/* DXY Fractal — Decision Engine */}
