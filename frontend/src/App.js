@@ -233,7 +233,7 @@ const OnchainValidationPage = lazy(() => import("./pages/OnchainValidationPage")
 // Fractal V2.1 - Pattern Analysis Engine (BLOCK 47-50)
 const FractalPage = lazy(() => import("./pages/FractalPage"));
 const FractalAdminPage = lazy(() => import("./pages/FractalAdminPage"));
-const AeBrainPage = lazy(() => import("./pages/AeBrainPage"));
+// AeBrainPage removed - replaced by Brain v4 Decision Engine
 
 // Brain Overview v3 - Institutional AI Macro Risk Dashboard
 // Brain Overview v4 - Decision Engine (replaces v3)
