@@ -205,10 +205,11 @@ const TOOLTIPS = {
 const HeaderStrip = ({ header, verdict }) => {
   if (!header) return null;
   
-  // Convert to state-oriented terminology
-  const marketState = actionToState(header.signal, verdict?.bias);
+  // Convert to state-oriented terminology for SPX
+  const medianReturn = verdict?.expectedMoveP50 ? verdict.expectedMoveP50 / 100 : 0;
+  const marketState = actionToState(header.signal, medianReturn);
   const stateLabel = marketState === 'BULLISH' ? 'BULLISH SPX' : 
-                     marketState === 'BEARISH' ? 'BEARISH SPX' : 'HOLD';
+                     marketState === 'BEARISH' ? 'BEARISH SPX' : 'NEUTRAL';
   
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-3">
@@ -233,15 +234,15 @@ const HeaderStrip = ({ header, verdict }) => {
             </span>
           </div>
           
-          {/* Regime */}
+          {/* Phase (instead of Regime for SPX) */}
           <div className="text-sm">
-            <span className="text-gray-400">Regime:</span>
-            <span className="ml-1 font-medium text-gray-900">{header.regime?.replace('_', ' ')}</span>
+            <span className="text-gray-400">Phase:</span>
+            <span className="ml-1 font-medium text-gray-900">{getPhaseLabel(header.regime)}</span>
           </div>
         </div>
         
         <div className="flex items-center gap-4 text-xs text-gray-500">
-          <span>As of: {header.asOf}</span>
+          <span>As of: {typeof header.asOf === 'string' ? header.asOf.split('T')[0] : 'Now'}</span>
           <span className={`px-2 py-1 rounded ${header.dataStatus === 'REAL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
             {header.dataStatus}
           </span>
