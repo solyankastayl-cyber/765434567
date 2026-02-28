@@ -166,7 +166,7 @@ export function SpxMacroInfoPanel({ meta }) {
 // CHART COMPONENT
 // ═══════════════════════════════════════════════════════════════
 
-export function SpxMacroOverlayChart({ data }: { data: MacroOverlayData }) {
+export function SpxMacroOverlayChart({ data }) {
   // Combine all series into unified chart data
   const chartData = useMemo(() => {
     if (!data) return [];
