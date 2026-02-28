@@ -90,6 +90,28 @@ export function FractalHybridChart({
     setSelectedPhaseStats(null);
   }, [focus]);
   
+  // STATE: Macro overlay data for SPX
+  const [macroOverlay, setMacroOverlay] = useState(null);
+  
+  // Fetch macro overlay when mode=macro and symbol=SPX
+  useEffect(() => {
+    if (mode !== 'macro' || symbol !== 'SPX') {
+      setMacroOverlay(null);
+      return;
+    }
+    
+    fetch(`${API_URL}/api/spx/macro-overlay?horizon=${focus}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          setMacroOverlay(data);
+        }
+      })
+      .catch(err => {
+        console.error('[FractalHybridChart] Macro overlay fetch error:', err);
+      });
+  }, [mode, symbol, focus, API_URL]);
+  
   // BLOCK 73.5.2: Handle phase click drilldown
   const handlePhaseClick = useCallback((phaseId, phaseStats) => {
     console.log('[PhaseClick]', phaseId, phaseStats);
