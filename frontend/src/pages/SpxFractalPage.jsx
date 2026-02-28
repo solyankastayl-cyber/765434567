@@ -220,7 +220,7 @@ const HeaderStrip = ({ header, verdict }) => {
           {/* Confidence */}
           <div className="text-sm">
             <span className="text-gray-400">Confidence:</span>
-            <span className="ml-1 font-medium text-gray-900">{header.confidence}%</span>
+            <span className="ml-1 font-medium text-gray-900">{Math.round(header.confidence)}%</span>
           </div>
           
           {/* Risk */}
