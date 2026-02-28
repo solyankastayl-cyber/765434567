@@ -556,9 +556,18 @@ const FractalTerminal = ({ asset = 'BTC' }) => {
                 />
               )}
               
-              {/* SPX Macro Overlay Mode */}
+              {/* SPX Macro Overlay Mode - use same chart as Hybrid */}
               {chartMode === 'macro' && symbol === 'SPX' && (
-                <SpxMacroView horizon={focus} />
+                <FractalHybridChart
+                  symbol={symbol}
+                  width={1200}
+                  height={460}
+                  focus={focus}
+                  focusPack={focusData}
+                  onPhaseFilter={setPhaseId}
+                  viewMode={viewMode}
+                  mode="macro"
+                />
               )}
             </>
           )}
