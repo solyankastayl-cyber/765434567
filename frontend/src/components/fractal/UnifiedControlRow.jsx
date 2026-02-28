@@ -33,7 +33,7 @@ const BASE_MODES = [
 // Asset-specific 4th mode
 const FOURTH_MODE = {
   BTC: { key: 'spx', label: 'SPX Overlay', description: 'S&P 500 correlation analysis' },
-  SPX: { key: 'dxy', label: 'DXY Overlay', description: 'Dollar index correlation analysis' },
+  SPX: { key: 'macro', label: 'Macro ★', description: 'DXY macro-adjusted projection' },
   DXY: { key: 'macro', label: 'Macro', description: 'Macro context with liquidity and regime analysis' },
 };
 
