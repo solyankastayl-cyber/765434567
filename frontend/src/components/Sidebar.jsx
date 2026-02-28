@@ -85,7 +85,7 @@ export function Sidebar({ globalState }) {
         { path: '/fractal', label: 'Bitcoin', icon: '₿' },
         { path: '/fractal/spx', label: 'SPX', icon: '📊' },
         { path: '/fractal/dxy', label: 'DXY', icon: '💵' },
-        { path: '/brain', label: 'Brain v4', icon: '🎯', badge: 'NEW' },
+        { path: '/brain', label: 'Macro Brain', icon: '🧠', badge: 'NEW' },
       ],
     },
     
