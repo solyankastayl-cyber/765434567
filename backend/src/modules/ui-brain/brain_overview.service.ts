@@ -83,12 +83,23 @@ async function fetchRealMacroData(): Promise<{
 // MACRO INDICATORS BUILDER
 // ═══════════════════════════════════════════════════════════════
 
-function buildMacroInputs(worldState: any, macroPack: any): IndicatorCard[] {
+async function buildMacroInputs(worldState: any, macroPack: any): Promise<IndicatorCard[]> {
   const indicators: IndicatorCard[] = [];
   const now = new Date().toISOString();
   
-  // 1. FED RATE (Monetary Policy)
-  const fedRate = worldState?.macro?.fedRate ?? macroPack?.components?.fedRate ?? null;
+  // Fetch real data from FRED-ingested database
+  const realData = await fetchRealMacroData();
+  
+  // Also get macro score for additional context
+  let macroScore: any = null;
+  try {
+    macroScore = await computeMacroScore();
+  } catch (e) {
+    console.warn('[BrainOverview] Could not fetch macro score:', (e as Error).message);
+  }
+  
+  // 1. FED RATE (Monetary Policy) - use real FRED data
+  const fedRate = realData.fedRate ?? worldState?.macro?.fedRate ?? macroPack?.components?.fedRate ?? null;
   indicators.push({
     key: 'fed_rate',
     title: 'Fed Funds Rate',
