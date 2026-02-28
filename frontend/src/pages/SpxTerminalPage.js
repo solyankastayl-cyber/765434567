@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import SpxHeaderStrip from '../components/spx/SpxHeaderStrip';
+import SpxVerdictCard from '../components/spx/SpxVerdictCard';
 import SpxConsensusPanel from '../components/spx/SpxConsensusPanel';
 import SpxShortOutlook from '../components/spx/SpxShortOutlook';
 import { SpxMatchReplayPicker } from '../components/spx/SpxMatchReplayPicker';
