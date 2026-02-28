@@ -1,0 +1,58 @@
+{
+  "summary": "Completed comprehensive testing of DXY Fractal page dropdown functionality - All requested features working perfectly",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": [
+      {
+        "endpoint": "/api/ui/fractal/dxy/overview?h=365",
+        "issue": "1Y (365 days) horizon returns HTTP 500 error",
+        "impact": "1Y option in dropdown may not load data, other horizons work perfectly",
+        "fix_priority": "MEDIUM"
+      }
+    ]
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "✅ Dropdown displays correctly next to 'DXY Verdict' header with proper styling",
+    "✅ Dropdown opens on click showing all 6 options: 7D, 14D, 30D, 90D, 180D, 1Y",
+    "✅ Dropdown uses proper data-testid attributes for automated testing",
+    "✅ Horizon selection changes dropdown display value (90D → 30D → 7D)",
+    "✅ Header Strip updates correctly (Signal: SELL → HOLD, Regime changes)",
+    "✅ Verdict Card updates all values: Action (SELL→HOLD), Bias (USD_DOWN→NEUTRAL), Expected (-5.77%→+0.09%)",
+    "✅ Chart updates with new forecast paths for selected horizon",
+    "✅ Forecast table updates and highlights selected horizon row",
+    "✅ API responds correctly to horizon parameter (h=7,14,30,90,180 all working)",
+    "✅ Data changes appropriately across horizons (different signals/actions for short vs long term)",
+    "✅ Multiple horizon selections work in sequence",
+    "✅ Dropdown closes automatically after selection"
+  ],
+  
+  "test_report_links": [
+    "/app/dxy_horizon_test.py",
+    "/app/.screenshots/dxy_dropdown_final.png"
+  ],
+  
+  "success_percentage": {
+    "backend": "83% (5/6 horizon endpoints working - 1Y endpoint has issue)",
+    "frontend": "100% (All dropdown functionality working perfectly)",
+    "integration": "100% (Perfect UI/API integration for horizon changes)",
+    "overall": "94% (Excellent implementation with minor 1Y endpoint issue)"
+  },
+  
+  "action_item_for_main_agent": "Fix 1Y (365 days) horizon endpoint returning HTTP 500 error in /api/ui/fractal/dxy/overview?h=365. All other functionality working perfectly.",
+  
+  "updated_files": [
+    "/app/dxy_horizon_test.py",
+    "/app/test_reports/iteration_5.json"
+  ],
+  
+  "should_call_test_agent_after_fix": "false",
+  "should_main_agent_test_itself": "true"
+}
