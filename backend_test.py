@@ -283,32 +283,41 @@ class FractalPlatformTester:
         return admin_working
     
     def run_all_tests(self):
-        """Run all DXY Fractal backend API tests"""
+        """Run all required API tests from review request"""
         print("="*60)
-        print("🚀 STARTING DXY FRACTAL BACKEND API TESTING")
-        print("💰 Testing DXY Decision Engine Components")
+        print("🚀 TESTING FRACTAL PLATFORM - GITHUB REPOSITORY DEPLOYMENT")
+        print("💎 Testing: BTC Terminal, DXY Decision Engine, SPX Terminal")
+        print("🧠 Testing: Brain Decision Engine, Admin Panel")
         print("🔗 Backend URL:", self.base_url)
         print("="*60)
         
-        # Basic connectivity
+        # Test 1: Backend health API
         if not self.test_health():
             print("\n❌ CRITICAL: Health endpoint failed - stopping tests")
             return False
         
-        # Core DXY Fractal functionality tests
+        # Test 2: Brain Decision Engine API  
+        self.test_brain_decision_api()
+        
+        # Test 3: DXY Fractal Decision Engine API
         self.test_dxy_fractal_overview()
-        self.test_dxy_fractal_with_params()
+        
+        # Test 4: BTC and SPX Fractal Terminals
+        self.test_fractal_terminals()
+        
+        # Test 5: Admin Panel APIs
+        self.test_admin_panel()
         
         # Print summary
         print("\n" + "="*60)
-        print("📊 TEST SUMMARY")
+        print("📊 TEST SUMMARY - FRACTAL PLATFORM")
         print("="*60)
         print(f"Tests run: {self.tests_run}")
         print(f"Tests passed: {self.tests_passed}")
         print(f"Success rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
         
         if self.errors:
-            print(f"\n❌ ERRORS ({len(self.errors)}):")
+            print(f"\n❌ ISSUES FOUND ({len(self.errors)}):")
             for i, error in enumerate(self.errors, 1):
                 print(f"  {i}. {error}")
         else:
