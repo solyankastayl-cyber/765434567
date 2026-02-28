@@ -59,19 +59,68 @@ class FractalPlatformTester:
             return False, str(e)[:200], None
     
     def test_health(self):
-        """Test basic health endpoint"""
-        print("\n🔍 Testing Health Endpoint...")
+        """Test backend health API: /api/health должен возвращать status ok"""
+        print("\n🔍 Testing Health Endpoint (/api/health)...")
         success, data, status = self.test_endpoint("api/health")
         
         if success:
             if isinstance(data, dict):
-                ts_status = data.get('ts_backend', {})
-                mode = ts_status.get('mode', 'unknown')
-                self.log_test("Health Check", True, f"Status OK, Mode: {mode}")
+                # Check for expected fields based on server.py
+                status_field = data.get('status')
+                proxy_field = data.get('proxy')
+                ts_backend = data.get('ts_backend', {})
+                
+                if status_field == 'ok':
+                    self.log_test("Health Status OK", True, f"Status: {status_field}, Proxy: {proxy_field}")
+                else:
+                    self.log_test("Health Status", False, f"Expected 'ok', got '{status_field}'")
+                
+                # Check TypeScript backend status
+                if isinstance(ts_backend, dict) and ts_backend.get('ok'):
+                    self.log_test("TypeScript Backend Health", True, "TS backend responding")
+                else:
+                    self.log_test("TypeScript Backend Health", False, f"TS backend status: {ts_backend}")
+                    
             else:
                 self.log_test("Health Check", True, "Basic health OK")
         else:
             self.log_test("Health Check", False, data)
+        
+        return success
+    
+    def test_brain_decision_api(self):
+        """Test Brain Decision Engine: /api/ui/brain/decision возвращает данные"""
+        print("\n🧠 Testing Brain Decision Engine (/api/ui/brain/decision)...")
+        success, data, status = self.test_endpoint("api/ui/brain/decision")
+        
+        if success and isinstance(data, dict):
+            # Check required Brain v4 components
+            required_components = [
+                'verdict', 'primaryAction', 'whyThisView', 'marketPhase', 
+                'riskMap', 'causalFlow', 'macroIndicators', 'allocation',
+                'capitalScaling', 'modelTransparency', 'decomposition'
+            ]
+            
+            present_components = [comp for comp in required_components if comp in data]
+            missing_components = [comp for comp in required_components if comp not in data]
+            
+            if len(missing_components) == 0:
+                self.log_test("Brain Decision Structure", True, f"All {len(required_components)} components present")
+            else:
+                self.log_test("Brain Decision Structure", False, f"Missing: {', '.join(missing_components)}")
+            
+            # Check verdict data
+            if 'verdict' in data:
+                verdict = data['verdict']
+                regime = verdict.get('regime', 'N/A')
+                bias = verdict.get('bias', 'N/A')
+                confidence = verdict.get('confidence', 'N/A')
+                self.log_test("Brain Verdict Data", True, f"Regime: {regime}, Bias: {bias}, Confidence: {confidence}%")
+            
+        elif success:
+            self.log_test("Brain Decision API", True, "Endpoint accessible")
+        else:
+            self.log_test("Brain Decision API", False, f"{data}")
         
         return success
     
