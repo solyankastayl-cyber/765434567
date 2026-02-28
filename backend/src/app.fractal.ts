@@ -664,6 +664,13 @@ async function main() {
   await dxyOverviewRoutes(app);
   console.log('[Fractal] ✅ UI DXY registered at /api/ui/fractal/dxy/*');
   
+  // ═══════════════════════════════════════════════════════════════
+  // SPX MACRO OVERLAY — Macro-Adjusted SPX Projections
+  // ═══════════════════════════════════════════════════════════════
+  console.log('[Fractal] Registering SPX Macro Overlay...');
+  const { spxMacroOverlayRoutes } = await import('./modules/spx-macro-overlay/index.js');
+  await spxMacroOverlayRoutes(app);
+  
   // Graceful shutdown
   const shutdown = async (signal: string) => {
     console.log(`[Fractal] Received ${signal}, shutting down...`);
