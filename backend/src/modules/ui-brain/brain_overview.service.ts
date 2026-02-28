@@ -41,14 +41,19 @@ async function fetchRealMacroData(): Promise<{
   unemployment: number | null;
   yieldSpread: number | null;
   m2Growth: number | null;
+  creditSpread: number | null;
+  housingStarts: number | null;
+  goldPrice: number | null;
 }> {
   try {
-    const [fedFunds, cpi, unrate, t10y2y, m2] = await Promise.all([
+    const [fedFunds, cpi, unrate, t10y2y, m2, baa10y, houst] = await Promise.all([
       getLatestMacroPoint('FEDFUNDS'),
       getLatestMacroPoint('CPIAUCSL'),
       getLatestMacroPoint('UNRATE'),
       getLatestMacroPoint('T10Y2Y'),
       getLatestMacroPoint('M2SL'),
+      getLatestMacroPoint('BAA10Y'),
+      getLatestMacroPoint('HOUST'),
     ]);
     
     // Calculate CPI YoY - need historical point
@@ -66,6 +71,9 @@ async function fetchRealMacroData(): Promise<{
       unemployment: unrate?.value ?? null,
       yieldSpread: t10y2y ? t10y2y.value / 100 : null, // Convert from bp to decimal
       m2Growth: null, // TODO: calculate YoY from historical
+      creditSpread: baa10y?.value ?? null, // BAA-10Y spread in %
+      housingStarts: houst?.value ?? null, // Housing starts thousands
+      goldPrice: null, // TODO: add gold price source
     };
   } catch (e) {
     console.error('[BrainOverview] Error fetching real macro data:', e);
@@ -75,6 +83,9 @@ async function fetchRealMacroData(): Promise<{
       unemployment: null,
       yieldSpread: null,
       m2Growth: null,
+      creditSpread: null,
+      housingStarts: null,
+      goldPrice: null,
     };
   }
 }
