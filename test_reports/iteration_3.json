@@ -1,0 +1,62 @@
+{
+  "summary": "Completed DXY Fractal testing - Backend API fully functional, Frontend displays different data format than API",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": []
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "DXY Decision Engine Integration",
+        "issue": "Frontend /dxy page shows different DXY format (BUY/+0.1%/NEUTRAL) vs Decision Engine API (/api/ui/fractal/dxy/overview) which returns SELL/-5.77%/BEAR USD data",
+        "affected_selectors": ["text=BUY", "text=+0.1%", "text=NEUTRAL"],
+        "fix_priority": "HIGH"
+      }
+    ],
+    "design_issues": [
+      {
+        "flow": "DXY Page Format Mismatch",
+        "issue": "Frontend displays traditional fractal format instead of Decision Engine format with Header Strip, Verdict Card, Forecast Table structure",
+        "affected_screen": ["DXY Fractal page at /dxy"]
+      }
+    ]
+  },
+  
+  "passed_tests": [
+    "Backend API /api/ui/fractal/dxy/overview returns complete Decision Engine data package",
+    "All required API components present: header, verdict, chart, forecasts, why, risk, analogs, macro",
+    "Header Strip API data matches requirements: signal=SELL, confidence=30%, risk=NORMAL, regime=BEAR USD, dataStatus=REAL",
+    "Verdict Card API data correct: action=SELL, bias=USD_DOWN, expectedMove=-5.77%, positionMultiplier=0.65x",
+    "Chart modes API data available: synthetic, replay, hybrid, macro paths",
+    "Forecast horizons API complete: 7D, 14D, 30D, 90D, 180D, 365D with all calculation modes",
+    "Why This Verdict API components: drivers, transmission chains, invalidations",
+    "Risk Context API complete: level, volatility regime, expected drawdown, position sizing",
+    "Historical Analogs API data: best match, coverage=50 years, sample size, outcome statistics",
+    "Macro Impact API: scoreSigned=-6.7% adjustment with detailed components breakdown",
+    "Multi-horizon API support working for all tested horizons: 7, 30, 90, 180",
+    "Frontend DXY page loads successfully at /dxy route",
+    "Chart Mode Switcher functionality: 4/4 modes (Synthetic, Replay, Hybrid, Macro) working",
+    "Horizon Switching functionality: 6/6 horizons (7D-365D) available and clickable",
+    "Historical Anchor section displays: Best Match=1977-04-01, Similarity=90%",
+    "Hybrid Construction section displays model and replay weights",
+    "Macro Layer section displays regime state and confidence levels",
+    "No JavaScript errors or UI crashes detected"
+  ],
+  
+  "test_report_links": ["/app/backend_test.py"],
+  
+  "success_percentage": {
+    "backend": "100%",
+    "frontend": "75% (functionality works but data integration mismatch)"
+  },
+  
+  "action_item_for_main_agent": "CRITICAL: Fix DXY page integration - Frontend /dxy route needs to use Decision Engine API data from /api/ui/fractal/dxy/overview instead of current data source. Current page shows BUY/+0.1%/NEUTRAL while API returns SELL/-5.77%/BEAR USD. Also implement Decision Engine UI format with Header Strip, Verdict Card, Forecast Table, Why Verdict, Risk Context, Historical Analogs, and expandable Macro Impact sections as specified in DxyFractalPage.jsx",
+  
+  "updated_files": ["/app/backend_test.py"],
+  
+  "should_call_test_agent_after_fix": "true",
+  "should_main_agent_test_itself": "false"
+}
