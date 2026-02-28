@@ -627,7 +627,12 @@ function buildAdvanced(engineData: any): ModelDecomposition {
 
 export async function getBrainDecisionPack(): Promise<BrainDecisionPack> {
   // Fetch all data
-  const engineData = await getEngineGlobalWithBrain();
+  const engineData = await getEngineGlobalWithBrain({
+    brain: true,
+    brainMode: 'on',
+    capital: true,
+    capitalMode: 'on',
+  });
   
   // Fetch macro score
   let macroScore: any = null;
