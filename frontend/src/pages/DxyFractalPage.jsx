@@ -138,10 +138,10 @@ const TOOLTIPS = {
   verdict: (
     <div className="space-y-1">
       <p className="font-medium">DXY Verdict</p>
-      <p className="text-gray-300">Final recommendation from the fractal + macro analysis model.</p>
-      <p><span className="text-emerald-400">Action</span> — Directional stance (BUY/SELL/HOLD)</p>
-      <p><span className="text-emerald-400">Expected Move</span> — P50 return estimate</p>
-      <p><span className="text-amber-400">Range</span> — P10 to P90 confidence interval</p>
+      <p className="text-gray-300">Market state assessment from fractal + macro analysis.</p>
+      <p><span className="text-emerald-400">Market State</span> — BULLISH / BEARISH / HOLD</p>
+      <p><span className="text-emerald-400">Directional Bias</span> — USD direction (↑/↓)</p>
+      <p><span className="text-amber-400">Expected Move</span> — P50 return estimate</p>
     </div>
   ),
   synthetic: (
