@@ -238,6 +238,9 @@ const FractalAdminPage = lazy(() => import("./pages/FractalAdminPage"));
 // DXY Fractal - Decision Engine approach
 const DxyFractalPage = lazy(() => import("./pages/DxyFractalPage"));
 
+// SPX Fractal - Decision Engine approach (mirrors DXY)
+const SpxFractalPage = lazy(() => import("./pages/SpxFractalPage"));
+
 // Brain Overview v3 - Institutional AI Macro Risk Dashboard
 // Brain Overview v4 - Decision Engine (replaces v3)
 const BrainOverviewPage = lazy(() => import("./pages/BrainOverviewPageV4"));
