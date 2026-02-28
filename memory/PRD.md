@@ -1,84 +1,61 @@
-# Fractal Platform PRD
+# Fractal Index PRD
 
 ## Original Problem Statement
-1. Развернуть код Fractal Platform из GitHub
-2. Реализовать v2.3 Capital Scaling (Risk Budget Targeting)
-3. Создать User Brain Page v3 — институциональный AI Macro Risk Dashboard
+Развернуть код из GitHub репозитория https://github.com/solyankastayl-cyber/dt54edcv
+- Модуль фракталов для валютных пар (DXY)
+- SPX и Bitcoin логика (в заморозке - поднять без изменений)
+- Админка
+- Подключение реальных данных на вкладке BRAIN с использованием FRED API
 
-## System Version
-- **Core**: v2.2.0-production-baseline (FROZEN)
-- **Capital Scaling**: v2.3.0-production (ACTIVE)
-- **Brain Page**: v3.0
+## Architecture
+- **Backend**: TypeScript/Fastify на порту 8002, Python proxy на 8001
+- **Frontend**: React на порту 3000
+- **Database**: MongoDB
+- **External APIs**: FRED API для макроданных
 
-## What's Been Implemented
+## User Personas
+1. **Трейдер** - использует BTC/SPX Fractal для анализа рыночных паттернов
+2. **Аналитик** - использует Brain v3 для macro-анализа
+3. **Администратор** - управляет системой через Admin Panel
 
-### 2026-02-28 — v2.3 Capital Scaling
-- [x] System freeze (v2.2.0)
-- [x] Capital Scaling module (10/10 tests pass)
-- [x] P13 validation: Sharpe +1.19, MaxDD -24.45%
-- [x] Production activation (capitalMode=on)
+## Core Requirements
+- [x] BTC Fractal Terminal с прогнозами
+- [x] SPX Fractal Terminal с historical pattern matching
+- [x] Brain v3 Overview с реальными macro данными
+- [x] Admin Panel
+- [x] FRED API интеграция для макроиндикаторов
 
-### 2026-02-28 — Brain Page v3
-- [x] Backend API: /api/ui/brain/overview
-- [x] Aggregated BrainOverviewPack structure
-- [x] Frontend: BrainOverviewPage.jsx
+## What's Been Implemented (2026-02-28)
+1. **Развёртывание проекта** - код из GitHub склонирован и настроен
+2. **FRED API интеграция** - ключ 2c0bf55cfd182a3a4d2e4fd017a622f7 добавлен
+3. **Macro данные загружены** - 16/22 серий из FRED (FEDFUNDS, CPIAUCSL, UNRATE, T10Y2Y, BAA10Y, HOUST и др.)
+4. **Brain Overview обновлён** - показывает реальные данные:
+   - Fed Funds Rate: 3.64%
+   - Inflation (CPI): 2.5%
+   - Unemployment: 4.3%
+   - Yield Curve: 1bp
+   - Credit Spreads: 173bp
+   - Housing: 1404K
 
-**UI Components:**
-- Health Strip (scenario, posture, guard, scale factor)
-- Macro Indicators (9 cards grid)
-- Macro Engine Output (score, regime, drivers, stability)
-- Macro → Market Transmission (3 channels)
-- Forecast by Horizon (30D/90D/180D/365D table)
-- Scenario & Recommendations
-- Allocation Pipeline (Base → After Brain → Final)
-- Capital Scaling block (scale factor, drivers)
-- Model Transparency (audit)
+## Prioritized Backlog
 
-## API Endpoints
+### P0 (Critical)
+- [x] Базовое развёртывание
+- [x] Реальные macro данные в Brain
 
-### Capital Scaling
-```
-GET  /api/capital-scaling/health
-GET  /api/capital-scaling/preview
-POST /api/capital-scaling/apply
-GET  /api/capital-scaling/config
-GET  /api/capital-scaling/test
-```
+### P1 (High Priority)
+- [ ] Оптимизация /api/ui/brain/overview (сейчас 45+ сек)
+- [ ] Расчёт M2 Growth YoY
+- [ ] Liquidity Impulse индикатор
+- [ ] Gold Safe Haven индикатор
 
-### Brain Overview
-```
-GET /api/ui/brain/overview
-GET /api/ui/brain/health
-```
+### P2 (Medium Priority)
+- [ ] CPI YoY расчёт из исторических данных
+- [ ] Кэширование brain overview
+- [ ] Автоматический re-ingest FRED данных
 
-### Engine
-```
-GET /api/engine/global?brain=1&optimizer=1&capital=1
-```
-
-## Frontend Routes
-- `/brain` — Brain Overview Page v3
-- `/intelligence/brain` — альтернативный путь
-
-## Test Results
-- Capital Scaling: 10/10 PASS
-- P13 Validation: PASS
-- Brain Overview API: PASS
-- Frontend: PASS (loads in ~10-15s)
-
-## Backlog
-
-### P0 (Done)
-- [x] Deploy platform ✓
-- [x] v2.3 Capital Scaling ✓
-- [x] Brain Page v3 ✓
-
-### P1 (Next)
-- [ ] Add Brain Page to Intelligence menu
-- [ ] Cache API response for faster load
-- [ ] Populate FRED macro data
-
-### P2 (Future)
-- [ ] Admin Brain Page (parameter tuning)
-- [ ] Historical scaleFactor visualization
-- [ ] Portfolio vol calculation
+## Next Tasks
+1. Оптимизировать производительность Brain Overview API
+2. Добавить расчёт M2 Growth YoY из исторических данных
+3. Интегрировать Liquidity Impulse из существующих компонентов
+4. Добавить источник данных для Gold (GLD или похожий)
