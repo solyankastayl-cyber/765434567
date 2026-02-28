@@ -180,8 +180,8 @@ async function buildMacroInputs(worldState: any, macroPack: any): Promise<Indica
     lastUpdate: now,
   });
   
-  // 6. CREDIT SPREAD
-  const creditSpread = worldState?.macro?.creditSpreadNorm ?? macroPack?.components?.creditSpread ?? null;
+  // 6. CREDIT SPREAD - use real FRED BAA10Y data
+  const creditSpread = realData.creditSpread ?? worldState?.macro?.creditSpreadNorm ?? macroPack?.components?.creditSpread ?? null;
   indicators.push({
     key: 'credit_spread',
     title: 'Credit Spreads',
