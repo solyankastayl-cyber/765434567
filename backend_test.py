@@ -218,40 +218,69 @@ class FractalPlatformTester:
         
         return success
     
-    def test_fractal_endpoints(self):
-        """Test BTC and SPX fractal endpoints"""
-        print("\n📈 Testing Fractal Endpoints...")
+    def test_fractal_terminals(self):
+        """Test BTC and SPX Fractal Terminals"""
+        print("\n📈 Testing Fractal Terminals...")
         
-        # Test BTC fractal data
-        btc_success, btc_data, btc_status = self.test_endpoint("api/fractal/btc/latest")
-        if not btc_success:
-            # Try alternative endpoint
-            btc_success, btc_data, btc_status = self.test_endpoint("api/fractal/bitcoin")
+        # Test BTC Fractal Terminal endpoints
+        btc_endpoints = [
+            "api/fractal/signal",  # Current BTC fractal signal
+            "api/fractal/match",   # BTC pattern matching  
+            "api/fractal/health"   # BTC fractal health
+        ]
         
-        self.log_test("BTC Fractal Endpoint", btc_success, 
-                     f"Status: {btc_status}" + (f", Data available" if btc_success else f" - {btc_data}"))
+        btc_success_count = 0
+        for endpoint in btc_endpoints:
+            success, data, status = self.test_endpoint(endpoint)
+            if success:
+                btc_success_count += 1
+                self.log_test(f"BTC Fractal - {endpoint.split('/')[-1]}", True, f"Status: {status}")
+            else:
+                self.log_test(f"BTC Fractal - {endpoint.split('/')[-1]}", False, f"Status: {status}, Error: {data}")
         
-        # Test SPX fractal data  
-        spx_success, spx_data, spx_status = self.test_endpoint("api/fractal/spx/latest")
-        if not spx_success:
-            # Try alternative endpoint
-            spx_success, spx_data, spx_status = self.test_endpoint("api/fractal/spx")
-            
-        self.log_test("SPX Fractal Endpoint", spx_success,
-                     f"Status: {spx_status}" + (f", Data available" if spx_success else f" - {spx_data}"))
+        # Test SPX Fractal Terminal endpoints
+        spx_endpoints = [
+            "api/fractal/spx/signal",
+            "api/fractal/spx/overview", 
+            "api/fractal/spx/match"
+        ]
         
-        return btc_success or spx_success
+        spx_success_count = 0 
+        for endpoint in spx_endpoints:
+            success, data, status = self.test_endpoint(endpoint)
+            if success:
+                spx_success_count += 1
+                self.log_test(f"SPX Fractal - {endpoint.split('/')[-1]}", True, f"Status: {status}")
+            else:
+                self.log_test(f"SPX Fractal - {endpoint.split('/')[-1]}", False, f"Status: {status}, Error: {data}")
+        
+        # Overall success if at least 1 endpoint from each works
+        overall_success = (btc_success_count >= 1) and (spx_success_count >= 1)
+        self.log_test("Fractal Terminals Overall", overall_success, 
+                     f"BTC: {btc_success_count}/{len(btc_endpoints)}, SPX: {spx_success_count}/{len(spx_endpoints)}")
+        
+        return overall_success
     
-    def test_admin_endpoints(self):
-        """Test admin-related endpoints"""
-        print("\n👤 Testing Admin Endpoints...")
+    def test_admin_panel(self):
+        """Test Admin Panel: страница /admin показывает форму логина"""
+        print("\n👤 Testing Admin Panel...")
         
-        # Check if admin login page is served
-        admin_success, admin_data, admin_status = self.test_endpoint("admin/login", method='GET')
-        self.log_test("Admin Login Page", admin_success or admin_status == 404, 
-                     f"Status: {admin_status}" + (" - Page accessible" if admin_success else ""))
+        # Test admin auth endpoints
+        admin_endpoints = [
+            "api/admin/auth/check",
+            "api/admin/login"
+        ]
         
-        return True  # Admin accessibility is not critical
+        admin_working = False
+        for endpoint in admin_endpoints:
+            success, data, status = self.test_endpoint(endpoint)
+            if success or status in [401, 403]:  # Auth endpoints may return 401/403 when not logged in
+                admin_working = True
+                self.log_test(f"Admin API - {endpoint.split('/')[-1]}", True, f"Status: {status} (auth working)")
+            else:
+                self.log_test(f"Admin API - {endpoint.split('/')[-1]}", False, f"Status: {status}, Error: {data}")
+        
+        return admin_working
     
     def run_all_tests(self):
         """Run all DXY Fractal backend API tests"""
