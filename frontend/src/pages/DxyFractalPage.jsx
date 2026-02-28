@@ -30,6 +30,8 @@ import {
 
 // Import existing chart components
 import { FractalHybridChart } from '../components/fractal/chart/FractalHybridChart';
+import { FractalMainChart } from '../components/fractal/chart/FractalMainChart';
+import { FractalOverlaySection } from '../components/fractal/sections/FractalOverlaySection';
 import { useFocusPack } from '../hooks/useFocusPack';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || '';
