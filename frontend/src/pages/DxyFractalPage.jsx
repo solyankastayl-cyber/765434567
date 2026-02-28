@@ -656,7 +656,7 @@ const DxyFractalPage = () => {
   const focusStr = horizon <= 7 ? '7d' : horizon <= 14 ? '14d' : horizon <= 30 ? '30d' : horizon <= 90 ? '90d' : horizon <= 180 ? '180d' : '1y';
   
   // Use existing focusPack hook for chart data
-  const { focusData, isLoading: chartLoading } = useFocusPack('DXY', focusStr);
+  const { data: focusData, loading: chartLoading, forecast, overlay } = useFocusPack('DXY', focusStr);
   
   const fetchData = useCallback(async () => {
     try {
