@@ -638,7 +638,7 @@ function App() {
               {/* DXY Fractal — P6 UI ENABLED */}
               {/* DXY Fractal — Decision Engine */}
               <Route path="/fractal/dxy" element={<DxyFractalPage />} />
-              <Route path="/dxy" element={<FractalPage asset="DXY" />} />
+              <Route path="/dxy" element={<DxyFractalPage />} />
               
               {/* AE Brain removed - replaced by Brain v4 at /brain */}
               
