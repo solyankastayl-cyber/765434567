@@ -6,7 +6,8 @@
 - SPX и Bitcoin логика (в заморозке - поднять без изменений)
 - Админка
 - Подключение реальных данных на вкладке BRAIN с использованием FRED API
-- **Brain v4** - переработка Brain из dashboard в Decision Engine
+- **Brain v4 (Macro Brain)** - переработка Brain из dashboard в Decision Engine
+- **DXY Fractal** - полная переработка в Decision Engine формат
 
 ## Architecture
 - **Backend**: TypeScript/Fastify на порту 8002, Python proxy на 8001
@@ -14,99 +15,94 @@
 - **Database**: MongoDB
 - **External APIs**: FRED API для макроданных
 
-## User Personas
-1. **Трейдер** - использует BTC/SPX Fractal для анализа рыночных паттернов
-2. **Аналитик** - использует Brain v4 для принятия решений на основе macro-анализа
-3. **Администратор** - управляет системой через Admin Panel
+## Decision Engine Philosophy
+Brain/DXY — это не dashboard. Это decision engine.
+Отвечает на 5 вопросов:
+1. Где мы сейчас? (Regime)
+2. Куда рынок движется? (Bias, Expected Move)
+3. Что делать? (Action: BUY/SELL/HOLD)
+4. Какой риск/размер? (Position Size, Capital Scaling)
+5. Почему? (Drivers, Transmission, Invalidations)
 
-## Brain v4 Philosophy
-Brain — это не dashboard. Brain — это decision engine.
-Он отвечает на 5 вопросов:
-1. Где мы сейчас?
-2. Куда рынок вероятнее всего движется?
-3. Стоит ли покупать?
-4. Где риск?
-5. Почему ты так думаешь?
+## DXY Fractal Structure (Decision Engine)
+### 0) Header Strip
+- Signal, Confidence, Risk, Regime, Data Status
 
-## Brain v4 Structure (Decision Engine)
-### Layer 1 - Final Verdict (The Answer)
-- Market Verdict: regime, dominantBias, posture, confidence
-- Primary Action: actionable recommendation
-- Size Guidance: multiplier, cash buffer, leverage
+### 1) Verdict Card
+- Action (BUY/SELL/HOLD)
+- Bias (USD UP/DOWN/NEUTRAL)  
+- Expected Move P50, Range P10-P90
+- Position Size, Confidence
+- Invalidations
 
-### Layer 2 - Why This View (Reasoning)  
-- 3-5 причин с цветовой индикацией (supportive/neutral/risk)
+### 2) Chart Modes
+- Synthetic (Baseline Fractal)
+- Replay (Historical Analogs)
+- Hybrid (Combined)
+- Macro (Final View with adjustment) ★
 
-### Layer 3 - Market Phase by Horizon
-- 30D, 90D, 180D, 365D с phase и strength
+### 3) Forecast by Horizon Table
+- 7D, 14D, 30D, 90D, 180D, 365D
+- Synthetic, Replay, Hybrid, Macro Adj, Final, Confidence
 
-### Layer 4 - Risk Map
-- Volatility, Tail Risk, Guard Status, Override, Capital Scale
+### 4) Why This Verdict
+- Key Drivers (Fed, Inflation, Credit)
+- Macro Transmission (Inflation→Rates→USD→DXY)
+- Invalidations
 
-### Layer 5 - Causal Flow (from AE Brain)
-- Inflation → Rates → USD → SPX
-- Liquidity → Credit Stress → BTC
+### 5) Risk Context
+- Risk Level, Vol Regime, Expected Drawdown
+- Position Size, Capital Scaling
 
-### Layer 6-9 - Detail (Transparency)
-- Macro Indicators с rich tooltips
-- Allocation Pipeline
-- Capital Scaling
-- Model Transparency
+### 6) Historical Analogs
+- Best Match, Coverage, Sample Size
+- Outcome P50, Range
+- Top Matches Table
 
-### Hidden - Advanced Decomposition
-- Synthetic/Replay/Hybrid details (expandable)
-
-## Core Requirements
-- [x] BTC Fractal Terminal с прогнозами
-- [x] SPX Fractal Terminal с historical pattern matching
-- [x] Brain v4 Decision Engine
-- [x] Admin Panel
-- [x] FRED API интеграция для макроиндикаторов
+### 7) Macro Impact (collapsible)
+- Score, Confidence, Regime, Delta
+- Components breakdown
 
 ## What's Been Implemented (2026-02-28)
 
 ### Session 1: Deployment
-1. Развёртывание проекта из GitHub
-2. FRED API интеграция (ключ: 2c0bf55cfd182a3a4d2e4fd017a622f7)
-3. Macro данные загружены (16/22 серий)
+- Развёртывание проекта из GitHub
+- FRED API интеграция
 
-### Session 2: Brain v4 Implementation
-1. **Новый API endpoint**: `/api/ui/brain/decision`
-2. **Новый контракт**: `BrainDecisionPack` с 11 компонентами
-3. **Новый сервис**: `brain_decision.service.ts`
-4. **Новый фронтенд**: `BrainOverviewPageV4.jsx`
-5. **Реальные данные FRED** в Brain:
-   - Fed Funds Rate: 3.64%
-   - Inflation (CPI): 2.5%
-   - Unemployment: 4.3%
-   - Yield Curve: 1bp
-   - Credit Spreads: 173bp
-   - Housing: 1404K
+### Session 2: Macro Brain
+- Brain v4 Decision Engine
+- Убраны Model Transparency/Decomposition
+- Черные тултипы на заголовках
+
+### Session 3: DXY Fractal Decision Engine
+1. **Новый API endpoint**: `/api/ui/fractal/dxy/overview`
+2. **Агрегированный пакет данных** с 9 компонентами
+3. **Verdict-first структура** на фронтенде
+4. **Реальные данные** из DXY Terminal + Macro Score
+5. **Маршруты обновлены**: `/dxy` и `/fractal/dxy`
 
 ## API Endpoints
-- `GET /api/ui/brain/decision` - Brain v4 Decision Engine
-- `GET /api/ui/brain/overview` - Legacy Brain v3
-- `GET /api/dxy-macro-core/series` - FRED macro series
-- `POST /api/dxy-macro-core/admin/ingest` - FRED data ingest
+- `GET /api/ui/brain/decision` - Macro Brain Decision Engine
+- `GET /api/ui/fractal/dxy/overview?h=90` - DXY Fractal Decision Engine
+- `GET /api/fractal/dxy/terminal` - Raw DXY terminal data
 
 ## Prioritized Backlog
 
 ### P0 (Critical) - DONE
 - [x] Базовое развёртывание
-- [x] Brain v4 Decision Engine
+- [x] Macro Brain Decision Engine  
+- [x] DXY Fractal Decision Engine
 
 ### P1 (High Priority)
-- [ ] Оптимизация /api/ui/brain/decision (сейчас 10-15 сек)
-- [ ] Расчёт M2 Growth YoY
-- [ ] Liquidity Impulse индикатор
+- [ ] Интегрировать реальный Chart компонент в DXY page
+- [ ] Кликабельный выбор горизонта (перезагрузка данных)
+- [ ] SPX/BTC терминалы в Decision Engine формат
 
 ### P2 (Medium Priority)
-- [ ] CPI YoY расчёт из исторических данных
-- [ ] Gold Safe Haven индикатор
-- [ ] Кэширование brain decision
-- [ ] Автоматический re-ingest FRED данных
+- [ ] Кэширование API ответов
+- [ ] WebSocket для realtime updates
 
 ## Next Tasks
-1. Оптимизировать производительность Brain Decision API
-2. Добавить Liquidity Impulse из M2 данных
-3. Интегрировать Gold источник данных
+1. Подключить FractalMainChart к DXY Decision Engine
+2. Применить Decision Engine подход к SPX и BTC
+3. Добавить кэширование для ускорения загрузки
