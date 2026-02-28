@@ -517,7 +517,7 @@ export async function getBrainOverview(asOf?: string): Promise<BrainOverviewPack
   return {
     meta,
     healthStrip,
-    macroInputs: buildMacroInputs(worldState, macroPack),
+    macroInputs: await buildMacroInputs(worldState, macroPack),
     macroEngine: buildMacroEngine(worldState, brainDecision),
     forecastByHorizon: buildForecastByHorizon(brainDecision),
     transmission: buildTransmission(worldState, brainDecision),
