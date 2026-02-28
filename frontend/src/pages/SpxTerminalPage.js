@@ -580,29 +580,7 @@ const SpxTerminalPage = () => {
   };
   
   return (
-    <div className="min-h-screen bg-slate-900" data-testid="spx-terminal">
-      {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                  SPX
-                </span>
-                <div>
-                  <h1 className="text-xl font-bold text-white">SPX Fractal Terminal</h1>
-                  <span className="text-xs text-slate-400">S&P 500 · Institutional Grade</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-xs text-slate-500">
-              v2.1 · BLOCK B5.8 · Production
-            </div>
-          </div>
-        </div>
-      </header>
-      
+    <div className="min-h-screen bg-gray-50" data-testid="spx-terminal">
       {/* Intelligence Header Strip (B5.8) */}
       <SpxHeaderStrip 
         pack={{ ...focusData, phase, currentFlags }} 
@@ -611,11 +589,20 @@ const SpxTerminalPage = () => {
       
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-6">
-        {/* Price Header */}
-        {!loading && price && (
-          <div className="mb-6">
-            <SpxPriceHeader price={price} phase={phase} />
-          </div>
+        {/* Title */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">SPX Fractal Research</h1>
+          <p className="text-gray-500">S&P 500 Analysis & Market Structure</p>
+        </div>
+        
+        {/* SPX Verdict Card (State-Oriented) */}
+        {!loading && overlay && (
+          <SpxVerdictCard 
+            overlay={overlay} 
+            consensus={consensus} 
+            meta={meta}
+            focus={focus}
+          />
         )}
         
         {/* Horizon Selector */}
