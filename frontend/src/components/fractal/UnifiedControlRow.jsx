@@ -44,41 +44,49 @@ const getModesForAsset = (asset) => {
 };
 
 /**
- * Primary Signal — Main status badge (BUY/SELL/HOLD)
- * Signal = "что делать" (действие)
- * Risk НЕ заменяет Signal, а ограничивает торговлю
+ * Primary Signal — Main status badge (BULLISH/BEARISH/NEUTRAL)
+ * State-oriented approach (not action-oriented)
  */
 function PrimarySignal({ signal }) {
   const [showTooltip, setShowTooltip] = useState(false);
   
+  // Convert action to state
+  const getState = (s) => {
+    if (s === 'BUY') return 'BULLISH';
+    if (s === 'SELL') return 'BEARISH';
+    return 'NEUTRAL';
+  };
+  
+  const state = getState(signal);
+  
   const configs = {
-    BUY: { 
+    BULLISH: { 
       icon: TrendingUp, 
       bg: 'bg-emerald-500',
-      text: 'text-emerald-700',
-      label: 'BUY',
-      description: 'Bullish signal — favorable conditions for entry',
-      hint: 'Consider opening or adding to long positions'
+      text: 'text-emerald-600',
+      label: 'BULLISH',
+      description: 'Bullish market state — favorable conditions',
+      hint: 'Market structure supports upside'
     },
-    SELL: { 
+    BEARISH: { 
       icon: TrendingDown, 
       bg: 'bg-red-500',
-      text: 'text-red-700',
-      label: 'SELL',
-      description: 'Bearish signal — consider reducing exposure',
-      hint: 'Risk reduction advised, consider taking profits'
+      text: 'text-red-500',
+      label: 'BEARISH',
+      description: 'Bearish market state — risk elevated',
+      hint: 'Market structure supports downside'
     },
-    HOLD: { 
+    NEUTRAL: { 
       icon: Pause, 
-      bg: 'bg-amber-500',
-      text: 'text-amber-700',
-      label: 'HOLD',
-      description: 'Neutral signal — wait for clarity',
-      hint: 'No clear direction, maintain current positions'
+      bg: 'bg-gray-400',
+      text: 'text-gray-500',
+      label: 'NEUTRAL',
+      description: 'Neutral market state — no clear edge',
+      hint: 'Wait for directional clarity'
     }
   };
   
-  const config = configs[signal] || configs.HOLD;
+  const config = configs[state] || configs.NEUTRAL;
   const Icon = config.icon;
   
   return (
