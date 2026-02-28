@@ -222,7 +222,7 @@ class FractalPlatformTester:
         """Test BTC and SPX Fractal Terminals"""
         print("\n📈 Testing Fractal Terminals...")
         
-        # Test BTC Fractal Terminal endpoints
+        # Test BTC Fractal Terminal endpoints  
         btc_endpoints = [
             "api/fractal/signal",  # Current BTC fractal signal
             "api/fractal/match",   # BTC pattern matching  
@@ -238,11 +238,11 @@ class FractalPlatformTester:
             else:
                 self.log_test(f"BTC Fractal - {endpoint.split('/')[-1]}", False, f"Status: {status}, Error: {data}")
         
-        # Test SPX Fractal Terminal endpoints
+        # Test SPX Fractal Terminal endpoints - use correct routes
         spx_endpoints = [
-            "api/fractal/spx/signal",
-            "api/fractal/spx/overview", 
-            "api/fractal/spx/match"
+            "api/fractal/spx",        # SPX fractal data (working endpoint)
+            "api/fractal/spx/match",  # SPX pattern matching
+            "api/fractal/spx/explain" # SPX explanation
         ]
         
         spx_success_count = 0 
@@ -250,7 +250,11 @@ class FractalPlatformTester:
             success, data, status = self.test_endpoint(endpoint)
             if success:
                 spx_success_count += 1
-                self.log_test(f"SPX Fractal - {endpoint.split('/')[-1]}", True, f"Status: {status}")
+                # Check for SPX-specific data
+                if isinstance(data, dict) and 'symbol' in data and data['symbol'] == 'SPX':
+                    self.log_test(f"SPX Fractal - {endpoint.split('/')[-1]}", True, f"Status: {status}, Symbol: SPX")
+                else:
+                    self.log_test(f"SPX Fractal - {endpoint.split('/')[-1]}", True, f"Status: {status}")
             else:
                 self.log_test(f"SPX Fractal - {endpoint.split('/')[-1]}", False, f"Status: {status}, Error: {data}")
         
