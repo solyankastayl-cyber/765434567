@@ -736,7 +736,7 @@ const DxyFractalPage = () => {
           </div>
           {/* Real Chart - using existing FractalHybridChart */}
           <div className="min-h-[420px]">
-            {chartLoading ? (
+            {chartLoading || !focusData ? (
               <div className="h-[420px] bg-gray-50 rounded-lg flex items-center justify-center">
                 <div className="text-gray-400">Loading chart...</div>
               </div>
