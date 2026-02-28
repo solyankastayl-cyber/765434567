@@ -736,22 +736,61 @@ const DxyFractalPage = () => {
               Current Price: <span className="font-medium text-gray-900">{data.currentPrice?.toFixed(2)}</span>
             </div>
           </div>
-          {/* Real Chart - using existing FractalHybridChart */}
-          <div className="min-h-[420px]">
+          {/* Real Chart - different components for different modes */}
+          <div className="min-h-[460px]">
             {chartLoading || !focusData ? (
-              <div className="h-[420px] bg-gray-50 rounded-lg flex items-center justify-center">
+              <div className="h-[460px] bg-gray-50 rounded-lg flex items-center justify-center">
                 <div className="text-gray-400">Loading chart...</div>
               </div>
             ) : (
-              <FractalHybridChart
-                symbol="DXY"
-                width={1100}
-                height={420}
-                focus={focusStr}
-                focusPack={focusData}
-                viewMode="ABS"
-                mode={chartMode === 'macro' ? 'macro' : 'hybrid'}
-              />
+              <>
+                {/* Synthetic = FractalMainChart (price chart with forecast) */}
+                {chartMode === 'synthetic' && (
+                  <FractalMainChart 
+                    symbol="DXY" 
+                    width={1100} 
+                    height={460}
+                    focus={focusStr}
+                    focusPack={focusData}
+                    viewMode="ABS"
+                  />
+                )}
+                
+                {/* Replay = FractalOverlaySection (historical matches overlay) */}
+                {chartMode === 'replay' && (
+                  <FractalOverlaySection 
+                    symbol="DXY"
+                    focus={focusStr}
+                    focusPack={focusData}
+                  />
+                )}
+                
+                {/* Hybrid = FractalHybridChart (combined synthetic + replay) */}
+                {chartMode === 'hybrid' && (
+                  <FractalHybridChart
+                    symbol="DXY"
+                    width={1100}
+                    height={460}
+                    focus={focusStr}
+                    focusPack={focusData}
+                    viewMode="ABS"
+                    mode="hybrid"
+                  />
+                )}
+                
+                {/* Macro = FractalHybridChart with macro mode (hybrid + macro adjustment) */}
+                {chartMode === 'macro' && (
+                  <FractalHybridChart
+                    symbol="DXY"
+                    width={1100}
+                    height={460}
+                    focus={focusStr}
+                    focusPack={focusData}
+                    viewMode="ABS"
+                    mode="macro"
+                  />
+                )}
+              </>
             )}
           </div>
         </div>
