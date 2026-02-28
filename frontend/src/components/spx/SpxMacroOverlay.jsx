@@ -306,7 +306,7 @@ export function SpxMacroOverlayChart({ data }) {
 // FULL MACRO VIEW
 // ═══════════════════════════════════════════════════════════════
 
-export function SpxMacroView({ horizon }: { horizon: string }) {
+export function SpxMacroView({ horizon }) {
   const { data, loading, error } = useSpxMacroOverlay(horizon);
 
   if (loading) {
