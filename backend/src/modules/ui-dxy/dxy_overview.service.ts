@@ -48,7 +48,7 @@ function clamp(val: number, min: number, max: number): number {
 async function fetchDxyTerminal(horizon: number = 90): Promise<any> {
   try {
     const focusMap: Record<number, string> = {
-      7: '7d', 14: '14d', 30: '30d', 90: '90d', 180: '180d', 365: '1y'
+      7: '7d', 14: '14d', 30: '30d', 90: '90d', 180: '180d', 365: '365d'
     };
     const focus = focusMap[horizon] || '90d';
     
