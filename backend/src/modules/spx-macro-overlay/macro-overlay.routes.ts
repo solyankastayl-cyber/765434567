@@ -21,25 +21,41 @@ async function fetchSPXHybrid(horizon: string): Promise<ProjectionPack | null> {
     const response = await fetch(`${API_BASE}/api/fractal/spx?focus=${horizon}`);
     if (!response.ok) return null;
     
-    const data = await response.json();
-    if (!data.ok) return null;
+    const json = await response.json();
+    if (!json.ok) return null;
     
-    // Transform to ProjectionPack
-    const stats = data.overlay?.stats || {};
-    const hybridPath = data.projection?.hybrid?.path || [];
+    const data = json.data || {};
+    const chartData = data.chartData || {};
+    const decision = data.decision || {};
+    const horizonData = data.horizons?.[horizon] || {};
+    
+    // Get path as array of values
+    const path = chartData.path || [];
+    const bands = chartData.bands || {};
+    
+    // Build series from path (index = day offset)
+    const series = path.map((value: number, idx: number) => ({
+      t: idx,
+      y: value,
+    }));
+    
+    // Calculate expected from decision
+    const expectedP50 = decision.expectedReturn 
+      ? decision.expectedReturn * 100 
+      : (horizonData.medianReturn || 0) * 100;
     
     return {
       horizon,
-      asOf: data.meta?.asOf || new Date().toISOString(),
-      expectedP50: (stats.medianReturn || 0) * 100,
+      asOf: data.contract?.asOf || new Date().toISOString(),
+      expectedP50,
       rangeP10P90: [
-        (stats.p10Return || -0.05) * 100,
-        (stats.p90Return || 0.05) * 100,
+        (horizonData.p10Return || bands.p10 || -5) * (horizonData.p10Return ? 100 : 1),
+        (horizonData.p90Return || bands.p90 || 5) * (horizonData.p90Return ? 100 : 1),
       ],
-      series: hybridPath.map((p: any) => ({ t: p.d || p.t, y: p.v || p.y })),
-      confidence: stats.hitRate || 0.5,
+      series,
+      confidence: (decision.confidence || 50) / 100,
       quality: data.diagnostics?.qualityScore ? data.diagnostics.qualityScore * 100 : 50,
-      dataStatus: data.meta?.dataStatus || 'REAL',
+      dataStatus: 'REAL',
     };
   } catch (e) {
     console.error('[SPX Macro Overlay] Failed to fetch SPX hybrid:', e);
