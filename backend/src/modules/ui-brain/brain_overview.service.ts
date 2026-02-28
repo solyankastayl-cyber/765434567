@@ -129,8 +129,8 @@ async function buildMacroInputs(worldState: any, macroPack: any): Promise<Indica
     lastUpdate: now,
   });
   
-  // 3. LABOR (Unemployment)
-  const unrate = worldState?.macro?.unemployment ?? macroPack?.components?.unrate ?? null;
+  // 3. LABOR (Unemployment) - use real FRED data
+  const unrate = realData.unemployment ?? worldState?.macro?.unemployment ?? macroPack?.components?.unrate ?? null;
   indicators.push({
     key: 'unemployment',
     title: 'Unemployment Rate',
