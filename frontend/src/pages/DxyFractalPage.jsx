@@ -219,7 +219,7 @@ const HORIZON_OPTIONS = [
   { value: 30, label: '30D' },
   { value: 90, label: '90D' },
   { value: 180, label: '180D' },
-  { value: 365, label: '1Y' },
+  { value: 365, label: '365D' },
 ];
 
 const HorizonDropdown = ({ value, onChange }) => {
