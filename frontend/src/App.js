@@ -236,7 +236,8 @@ const FractalAdminPage = lazy(() => import("./pages/FractalAdminPage"));
 const AeBrainPage = lazy(() => import("./pages/AeBrainPage"));
 
 // Brain Overview v3 - Institutional AI Macro Risk Dashboard
-const BrainOverviewPage = lazy(() => import("./pages/BrainOverviewPage"));
+// Brain Overview v4 - Decision Engine (replaces v3)
+const BrainOverviewPage = lazy(() => import("./pages/BrainOverviewPageV4"));
 
 // Compare Dashboard - V1 vs V2 Institutional Validation
 const CompareDashboardPage = lazy(() => import("./engine-ui/CompareDashboard"));
