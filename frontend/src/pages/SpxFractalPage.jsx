@@ -320,10 +320,9 @@ const HorizonDropdown = ({ value, onChange }) => {
 const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
   if (!verdict) return null;
   
-  // Convert to state-oriented
-  const marketState = actionToState(verdict.action, verdict.bias);
-  const BiasIcon = getBiasIcon(verdict.bias);
-  const biasArrow = getBiasArrow(verdict.bias);
+  // Convert to state-oriented for SPX
+  const marketState = actionToState(verdict.action, verdict.expectedMoveP50 / 100);
+  const biasArrow = getBiasArrow(verdict.expectedMoveP50 / 100);
   
   return (
     <div className="bg-white rounded-xl p-6 mb-6">
@@ -347,7 +346,7 @@ const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Directional Bias</p>
           <div className="flex items-center gap-2">
-            <span className={`text-xl font-bold ${verdict.bias === 'SPX_UP' ? 'text-emerald-600' : verdict.bias === 'SPX_DOWN' ? 'text-red-500' : 'text-gray-500'}`}>
+            <span className={`text-xl font-bold ${verdict.expectedMoveP50 > 0 ? 'text-emerald-600' : verdict.expectedMoveP50 < 0 ? 'text-red-500' : 'text-gray-500'}`}>
               SPX {biasArrow}
             </span>
           </div>
@@ -357,7 +356,7 @@ const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Expected (P50)</p>
           <p className={`text-xl font-bold ${verdict.expectedMoveP50 > 0 ? 'text-emerald-600' : verdict.expectedMoveP50 < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-            {verdict.expectedMoveP50 > 0 ? '+' : ''}{verdict.expectedMoveP50}%
+            {verdict.expectedMoveP50 > 0 ? '+' : ''}{typeof verdict.expectedMoveP50 === 'number' ? verdict.expectedMoveP50.toFixed(2) : '0.00'}%
           </p>
         </div>
         
@@ -365,7 +364,7 @@ const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Range (P10–P90)</p>
           <p className="text-sm font-medium text-gray-700">
-            {verdict.rangeP10}% … {verdict.rangeP90}%
+            {typeof verdict.rangeP10 === 'number' ? verdict.rangeP10.toFixed(2) : '0'}% … {typeof verdict.rangeP90 === 'number' ? verdict.rangeP90.toFixed(2) : '0'}%
           </p>
         </div>
         
