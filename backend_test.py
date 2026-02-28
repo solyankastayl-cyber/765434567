@@ -301,7 +301,7 @@ class DxyFractalTester:
         return len(self.errors) == 0
 
 def main():
-    tester = GitHubRepoTester()
+    tester = DxyFractalTester()
     success = tester.run_all_tests()
     return 0 if success else 1
 
