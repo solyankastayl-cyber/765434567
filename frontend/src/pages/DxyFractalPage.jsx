@@ -325,7 +325,10 @@ const HorizonDropdown = ({ value, onChange }) => {
 const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
   if (!verdict) return null;
   
+  // Convert to state-oriented
+  const marketState = actionToState(verdict.action, verdict.bias);
   const BiasIcon = getBiasIcon(verdict.bias);
+  const biasArrow = getBiasArrow(verdict.bias);
   
   return (
     <div className="bg-white rounded-xl p-6 mb-6">
@@ -336,39 +339,45 @@ const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
         <HorizonDropdown value={horizon} onChange={onHorizonChange} />
       </div>
       
-      <div className="grid grid-cols-6 gap-6 mb-6">
+      <div className="grid grid-cols-5 gap-6 mb-6">
+        {/* Market State */}
         <div>
-          <p className="text-xs text-gray-400 uppercase mb-1">Action</p>
-          <p className={`text-2xl font-bold ${verdict.action === 'BUY' ? 'text-emerald-600' : verdict.action === 'SELL' ? 'text-red-600' : 'text-gray-600'}`}>
-            {verdict.action}
+          <p className="text-xs text-gray-400 uppercase mb-1">Market State</p>
+          <p className={`text-2xl font-bold ${getStateColor(marketState)}`}>
+            {marketState}
           </p>
         </div>
+        
+        {/* Directional Bias */}
         <div>
-          <p className="text-xs text-gray-400 uppercase mb-1">Bias</p>
-          <div className="flex items-center gap-1">
-            <BiasIcon className={`w-5 h-5 ${verdict.bias === 'USD_UP' ? 'text-emerald-600' : verdict.bias === 'USD_DOWN' ? 'text-red-600' : 'text-gray-600'}`} />
-            <span className="font-medium">{verdict.bias?.replace('_', ' ')}</span>
+          <p className="text-xs text-gray-400 uppercase mb-1">Directional Bias</p>
+          <div className="flex items-center gap-2">
+            <span className={`text-xl font-bold ${verdict.bias === 'USD_UP' ? 'text-emerald-600' : verdict.bias === 'USD_DOWN' ? 'text-red-500' : 'text-gray-500'}`}>
+              USD {biasArrow}
+            </span>
           </div>
         </div>
+        
+        {/* Expected Move */}
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Expected (P50)</p>
-          <p className={`text-xl font-bold ${verdict.expectedMoveP50 > 0 ? 'text-emerald-600' : verdict.expectedMoveP50 < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+          <p className={`text-xl font-bold ${verdict.expectedMoveP50 > 0 ? 'text-emerald-600' : verdict.expectedMoveP50 < 0 ? 'text-red-500' : 'text-gray-500'}`}>
             {verdict.expectedMoveP50 > 0 ? '+' : ''}{verdict.expectedMoveP50}%
           </p>
         </div>
+        
+        {/* Range */}
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Range (P10–P90)</p>
           <p className="text-sm font-medium text-gray-700">
             {verdict.rangeP10}% … {verdict.rangeP90}%
           </p>
         </div>
+        
+        {/* Position Size */}
         <div>
           <p className="text-xs text-gray-400 uppercase mb-1">Position Size</p>
           <p className="text-xl font-bold text-gray-900">{verdict.positionMultiplier}×</p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400 uppercase mb-1">Confidence</p>
-          <p className="text-xl font-bold text-gray-900">{verdict.confidence}%</p>
         </div>
       </div>
       
