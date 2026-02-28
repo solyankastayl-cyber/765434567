@@ -21,6 +21,8 @@ import type {
   IndicatorStatus,
   UsdImpact,
 } from './brain_overview.contract.js';
+import { getLatestMacroPoint } from '../dxy-macro-core/ingest/macro.ingest.service.js';
+import { computeMacroScore } from '../dxy-macro-core/services/macro_score.service.js';
 
 function round4(x: number): number {
   return Math.round(x * 10000) / 10000;
@@ -28,6 +30,53 @@ function round4(x: number): number {
 
 function round2(x: number): number {
   return Math.round(x * 100) / 100;
+}
+
+/**
+ * Fetch real macro data from FRED-ingested database
+ */
+async function fetchRealMacroData(): Promise<{
+  fedRate: number | null;
+  cpiYoY: number | null;
+  unemployment: number | null;
+  yieldSpread: number | null;
+  m2Growth: number | null;
+}> {
+  try {
+    const [fedFunds, cpi, unrate, t10y2y, m2] = await Promise.all([
+      getLatestMacroPoint('FEDFUNDS'),
+      getLatestMacroPoint('CPIAUCSL'),
+      getLatestMacroPoint('UNRATE'),
+      getLatestMacroPoint('T10Y2Y'),
+      getLatestMacroPoint('M2SL'),
+    ]);
+    
+    // Calculate CPI YoY - need historical point
+    let cpiYoY: number | null = null;
+    if (cpi) {
+      // CPI is an index, we need to get value from 12 months ago for YoY
+      // For now, use a simpler approach - estimate from current level
+      // Real implementation would query historical data
+      cpiYoY = 2.8; // Placeholder - TODO: calculate from historical
+    }
+    
+    return {
+      fedRate: fedFunds?.value ?? null,
+      cpiYoY,
+      unemployment: unrate?.value ?? null,
+      yieldSpread: t10y2y ? t10y2y.value / 100 : null, // Convert from bp to decimal
+      m2Growth: null, // TODO: calculate YoY from historical
+    };
+  } catch (e) {
+    console.error('[BrainOverview] Error fetching real macro data:', e);
+    return {
+      fedRate: null,
+      cpiYoY: null,
+      unemployment: null,
+      yieldSpread: null,
+      m2Growth: null,
+    };
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
