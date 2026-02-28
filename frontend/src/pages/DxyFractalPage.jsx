@@ -170,6 +170,16 @@ const TOOLTIPS = {
       <p>Outcome = median forward return on selected horizon.</p>
     </div>
   ),
+  macroImpact: (
+    <div className="space-y-1">
+      <p className="font-medium">Macro Impact</p>
+      <p className="text-gray-300">Adjustment to base forecast from macroeconomic factors:</p>
+      <p><span className="text-emerald-400">Fed Funds</span> — Monetary policy stance</p>
+      <p><span className="text-emerald-400">Inflation</span> — CPI/PPI trends</p>
+      <p><span className="text-emerald-400">Credit</span> — Risk appetite signals</p>
+      <p className="text-amber-400 mt-1">Positive = USD support, Negative = USD pressure</p>
+    </div>
+  ),
 };
 
 // ═══════════════════════════════════════════════════════════════
