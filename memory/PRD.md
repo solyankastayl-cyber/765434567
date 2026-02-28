@@ -13,82 +13,87 @@
 - **Database**: MongoDB
 - **External APIs**: FRED API для макроданных
 
-## Decision Engine Philosophy
-Brain/DXY — это не dashboard. Это decision engine.
-Отвечает на 5 вопросов:
-1. Где мы сейчас? (Regime)
-2. Куда рынок движется? (Bias, Expected Move)
-3. Что делать? (Action: BUY/SELL/HOLD)
-4. Какой риск/размер? (Position Size, Capital Scaling)
-5. Почему? (Drivers, Transmission, Invalidations)
+## Decision Engine Philosophy (State-Oriented)
+Brain/DXY/SPX — это не trading dashboard. Это decision engine.
+
+**Терминология (State-Oriented):**
+- ~~SELL~~ → **BEARISH** (красный)
+- ~~BUY~~ → **BULLISH** (зелёный)
+- ~~HOLD~~ → **NEUTRAL** (серый)
+
+**Header Strip формат:**
+`BULLISH SPX | Confidence: 60% | Risk: NORMAL | Phase: Distribution`
+
+**Verdict Card:**
+- Market State: BULLISH/BEARISH/NEUTRAL
+- Directional Bias: SPX ↑/↓/—
+- Expected (P50)
+- Range (P10-P90)
+- Position Size
 
 ## What's Been Implemented
 
 ### Session 1: Deployment (2026-02-28)
 - Развёртывание проекта из GitHub
 - TypeScript backend (Fastify) с Python proxy
-- Cold Start bootstrap данных (BTC 5692 candles, DXY 13366 candles, SPX 24000+ candles)
-- FRED API интеграция (Fed Funds, CPI, UNRATE)
+- Cold Start bootstrap данных
 
-### Session 2: Horizon Dropdown (2026-02-28)
-- **HorizonDropdown компонент** в DxyFractalPage.jsx
-- Опции: 7D, 14D, 30D, 90D, 180D, 1Y
-- Убран "(90D)" из заголовка "DXY Verdict"
-- При смене горизонта перезагружаются все данные страницы:
-  - Header Strip (Signal, Regime)
-  - Verdict Card (Action, Bias, Expected Move)
-  - Chart (обновляется forecast)
-  - Forecast by Horizon таблица
-  - Historical Matches
-  - Risk Context
-  - Macro Impact
+### Session 2: DXY Horizon Dropdown (2026-02-28)
+- HorizonDropdown компонент в DxyFractalPage.jsx
+- Опции: 7D, 14D, 30D, 90D, 180D, 365D
+- При смене горизонта перезагружаются все данные
 
-### Active Modules
-1. **BTC Fractal Terminal** - /fractal (FROZEN, production ready)
+### Session 3: State-Oriented Refactoring (2026-02-28)
+**DXY Page:**
+- Header Strip: BEARISH USD | Confidence | Risk | Regime
+- Verdict Card: Market State + Directional Bias (без Action/SELL)
+- Убраны дублирования
+- Пунктирные подчёркивания убраны
+- Macro Impact постоянно открыт + tooltip
+
+**SPX Page (/fractal/spx):**
+- UnifiedControlRow: BULLISH/BEARISH/NEUTRAL вместо BUY/SELL/HOLD
+- State-oriented primary signal
+
+**Компоненты обновлены:**
+- `/app/frontend/src/pages/DxyFractalPage.jsx`
+- `/app/frontend/src/components/spx/SpxHeaderStrip.jsx`
+- `/app/frontend/src/components/spx/SpxVerdictCard.jsx` (новый)
+- `/app/frontend/src/components/fractal/UnifiedControlRow.jsx`
+
+## Active Modules
+1. **BTC Fractal Terminal** - /fractal (FROZEN)
 2. **DXY Fractal Decision Engine** - /dxy (active development)
-3. **SPX Fractal Terminal** - /fractal/spx (FROZEN)
-4. **Macro Brain v4** - /brain (Decision Engine)
+3. **SPX Fractal Terminal** - /fractal/spx (state-oriented update)
+4. **Macro Brain v4** - /brain
 5. **Admin Panel** - /admin
-
-## API Endpoints
-- `GET /api/health` - System health check
-- `GET /api/ui/brain/decision` - Macro Brain Decision Engine
-- `GET /api/ui/fractal/dxy/overview?h={horizon}` - DXY Fractal Decision Engine
-- `GET /api/fractal/dxy/terminal` - Raw DXY terminal data
-- `GET /api/fractal/signal` - BTC fractal signal
-- `GET /api/fractal/spx` - SPX fractal data
-
-## Test Results (2026-02-28)
-- Session 1: 88% success (deployment)
-- Session 2: 94% success (horizon dropdown)
-  - Horizons 7D, 14D, 30D, 90D, 180D работают
-  - 1Y имеет backend ограничение
 
 ## Prioritized Backlog
 
 ### P0 (Critical) - DONE
-- [x] Базовое развёртывание из GitHub
-- [x] TypeScript backend с Python proxy
-- [x] Cold Start bootstrap данных
-- [x] FRED API интеграция
-- [x] Horizon Dropdown для DXY
+- [x] Базовое развёртывание
+- [x] DXY Horizon Dropdown
+- [x] State-Oriented терминология (BULLISH/BEARISH/NEUTRAL)
+- [x] DXY Header Strip унификация
+- [x] SPX Header унификация
 
 ### P1 (High Priority)
-- [ ] Fix 1Y (365D) horizon endpoint
-- [ ] Admin backend authentication
-- [ ] Интегрировать реальный Chart компонент в DXY page
+- [ ] SPX Verdict Card integration в /fractal/spx
+- [ ] Fix NaN% в Forward Performance
+- [ ] NO TRADE → Execution Mode отдельный блок
+- [ ] Risk Context consistency
 
 ### P2 (Medium Priority)
-- [ ] Brain v4 недостающие компоненты
-- [ ] WebSocket для realtime updates
-- [ ] Кэширование API ответов
+- [ ] Brain v4 state-oriented update
+- [ ] BTC Terminal state-oriented update
+- [ ] Убрать дублирующие статусы везде
 
-## Frozen Modules (No Changes)
-- BTC Fractal Terminal
-- SPX Terminal (building mode)
+## Frozen Modules (No Changes to Logic)
+- BTC Fractal Terminal (building mode)
 - Brain base functionality
+- Admin authentication
 
 ## Next Tasks
-1. Fix 1Y horizon endpoint в backend
-2. Admin backend authentication
-3. Улучшить Chart компонент для DXY
+1. SPX Verdict Card в FractalPage
+2. Fix NaN% display
+3. Execution Mode блок
