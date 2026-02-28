@@ -235,6 +235,9 @@ const FractalPage = lazy(() => import("./pages/FractalPage"));
 const FractalAdminPage = lazy(() => import("./pages/FractalAdminPage"));
 // AeBrainPage removed - replaced by Brain v4 Decision Engine
 
+// DXY Fractal - Decision Engine approach
+const DxyFractalPage = lazy(() => import("./pages/DxyFractalPage"));
+
 // Brain Overview v3 - Institutional AI Macro Risk Dashboard
 // Brain Overview v4 - Decision Engine (replaces v3)
 const BrainOverviewPage = lazy(() => import("./pages/BrainOverviewPageV4"));
