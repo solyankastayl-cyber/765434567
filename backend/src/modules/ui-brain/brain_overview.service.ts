@@ -112,7 +112,11 @@ async function buildMacroInputs(worldState: any, macroPack: any): Promise<Indica
   });
   
   // 2. INFLATION (CPI)
-  const cpi = worldState?.macro?.cpiYoY ?? macroPack?.components?.cpi ?? null;
+  // Try to get from macro score components first
+  const cpiComponent = macroScore?.components?.find((c: any) => c.seriesId === 'CPIAUCSL' || c.seriesId === 'CPILFESL');
+  const cpi = cpiComponent?.rawPressure !== undefined 
+    ? 2.5 + (cpiComponent.rawPressure * 2) // Convert pressure to approx YoY %
+    : realData.cpiYoY ?? worldState?.macro?.cpiYoY ?? macroPack?.components?.cpi ?? null;
   indicators.push({
     key: 'inflation',
     title: 'Inflation (CPI YoY)',
