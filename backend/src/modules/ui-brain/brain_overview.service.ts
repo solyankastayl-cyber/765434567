@@ -142,8 +142,8 @@ async function buildMacroInputs(worldState: any, macroPack: any): Promise<Indica
     lastUpdate: now,
   });
   
-  // 4. YIELD CURVE
-  const yieldSpread = worldState?.macro?.yieldCurveSpread ?? macroPack?.components?.yieldCurve ?? null;
+  // 4. YIELD CURVE - use real FRED data
+  const yieldSpread = realData.yieldSpread ?? worldState?.macro?.yieldCurveSpread ?? macroPack?.components?.yieldCurve ?? null;
   indicators.push({
     key: 'yield_curve',
     title: 'Yield Curve (10Y-2Y)',
