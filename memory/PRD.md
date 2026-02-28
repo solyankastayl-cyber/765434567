@@ -13,15 +13,54 @@
 - **Database**: MongoDB
 - **External APIs**: FRED API для макроданных
 
-## Decision Engine Philosophy (State-Oriented)
-Brain/DXY/SPX — это не trading dashboard. Это decision engine.
+## NEW: Macro-Adjusted Hybrid Projection (SPX)
 
-**Терминология (State-Oriented):**
+### Philosophy
+Не просто "DXY Overlay". Это **новый слой модели**:
+```
+SPX Hybrid → базовый прогноз
++
+DXY Macro Final → корректирующий фактор
+=
+SPX Macro-Adjusted Hybrid (новая основная линия)
+```
+
+### Formula
+```
+SPX_final = SPX_hybrid + (β × overlayWeight × DXY_delta)
+```
+
+Where:
+- **β** = SPX/DXY sensitivity coefficient (typically negative, -0.35 to -0.50)
+- **overlayWeight** = f(corr, confidence, quality, regime)
+- **DXY_delta** = expected DXY move (%)
+- SPX and DXY inversely correlated: DXY BEARISH → positive SPX adjustment
+
+### Backend: MacroOverlayEngine
+- Location: `/app/backend/src/modules/spx-macro-overlay/`
+- API: `GET /api/spx/macro-overlay?horizon=30d`
+- Returns: adjusted projection + baseHybrid + dxyMacro + meta
+
+### Frontend: SpxMacroView
+- Location: `/app/frontend/src/components/spx/SpxMacroOverlay.jsx`
+- Mode selector: Synthetic | Replay | Hybrid | **Macro ★**
+- Chart: 3 lines (Adjusted solid, Base/DXY dotted)
+
+### Guard Conditions
+Overlay disabled (w=0) if:
+- abs(corr) < 0.15
+- confidence < 0.45
+- quality < 40
+- dataStatus != 'REAL'
+
+## Decision Engine Philosophy (State-Oriented)
+
+**Терминология:**
 - ~~SELL~~ → **BEARISH** (красный)
 - ~~BUY~~ → **BULLISH** (зелёный)
 - ~~HOLD~~ → **NEUTRAL** (серый)
 
-**Header Strip формат:**
+**Header Strip:**
 `BULLISH SPX | Confidence: 60% | Risk: NORMAL | Phase: Distribution`
 
 **Verdict Card:**
@@ -34,66 +73,62 @@ Brain/DXY/SPX — это не trading dashboard. Это decision engine.
 ## What's Been Implemented
 
 ### Session 1: Deployment (2026-02-28)
-- Развёртывание проекта из GitHub
-- TypeScript backend (Fastify) с Python proxy
-- Cold Start bootstrap данных
+- Развёртывание из GitHub
+- TypeScript backend + Python proxy
+- Cold Start bootstrap
 
 ### Session 2: DXY Horizon Dropdown (2026-02-28)
-- HorizonDropdown компонент в DxyFractalPage.jsx
-- Опции: 7D, 14D, 30D, 90D, 180D, 365D
-- При смене горизонта перезагружаются все данные
+- Dropdown с опциями: 7D, 14D, 30D, 90D, 180D, 365D
+- Обновление всех данных страницы при смене
 
 ### Session 3: State-Oriented Refactoring (2026-02-28)
-**DXY Page:**
-- Header Strip: BEARISH USD | Confidence | Risk | Regime
-- Verdict Card: Market State + Directional Bias (без Action/SELL)
-- Убраны дублирования
-- Пунктирные подчёркивания убраны
-- Macro Impact постоянно открыт + tooltip
+- DXY: BEARISH USD | Confidence | Risk | Regime
+- SPX: BULLISH/BEARISH/NEUTRAL вместо BUY/SELL/HOLD
+- Убраны дублирования статусов
 
-**SPX Page (/fractal/spx):**
-- UnifiedControlRow: BULLISH/BEARISH/NEUTRAL вместо BUY/SELL/HOLD
-- State-oriented primary signal
+### Session 4: SPX Macro Overlay (2026-02-28)
+**Backend:**
+- `MacroOverlayEngine` - калибрация β/corr по горизонтам
+- API `/api/spx/macro-overlay` - adjusted projection
+- Guards: minAbsCorr, minConfidence, minQuality
 
-**Компоненты обновлены:**
-- `/app/frontend/src/pages/DxyFractalPage.jsx`
-- `/app/frontend/src/components/spx/SpxHeaderStrip.jsx`
-- `/app/frontend/src/components/spx/SpxVerdictCard.jsx` (новый)
-- `/app/frontend/src/components/fractal/UnifiedControlRow.jsx`
+**Frontend:**
+- `SpxMacroOverlay.jsx` - Macro ★ режим
+- MACRO IMPACT panel: Base/Adjustment/Total/Strength
+- Chart: 3 линии с легендой
+
+**Калибровка:**
+- Beta by horizon: 7d→-0.35, 30d→-0.42, 365d→-0.50
+- Corr by horizon: 7d→-0.28, 30d→-0.35, 365d→-0.42
+- Max adjustment: ±5%
 
 ## Active Modules
 1. **BTC Fractal Terminal** - /fractal (FROZEN)
-2. **DXY Fractal Decision Engine** - /dxy (active development)
-3. **SPX Fractal Terminal** - /fractal/spx (state-oriented update)
+2. **DXY Fractal Decision Engine** - /dxy (active)
+3. **SPX Fractal Terminal** - /fractal/spx (Macro ★ added)
 4. **Macro Brain v4** - /brain
 5. **Admin Panel** - /admin
 
 ## Prioritized Backlog
 
 ### P0 (Critical) - DONE
-- [x] Базовое развёртывание
+- [x] Deployment
 - [x] DXY Horizon Dropdown
-- [x] State-Oriented терминология (BULLISH/BEARISH/NEUTRAL)
-- [x] DXY Header Strip унификация
-- [x] SPX Header унификация
+- [x] State-Oriented (BULLISH/BEARISH/NEUTRAL)
+- [x] SPX Macro ★ режим
+- [x] MacroOverlayEngine backend
 
 ### P1 (High Priority)
-- [ ] SPX Verdict Card integration в /fractal/spx
-- [ ] Fix NaN% в Forward Performance
-- [ ] NO TRADE → Execution Mode отдельный блок
-- [ ] Risk Context consistency
+- [ ] SPX Verdict Card с macro influence строкой
+- [ ] Fix overlayWeight calculation (currently 0%)
+- [ ] DXY series в macro overlay
 
 ### P2 (Medium Priority)
-- [ ] Brain v4 state-oriented update
-- [ ] BTC Terminal state-oriented update
-- [ ] Убрать дублирующие статусы везде
-
-## Frozen Modules (No Changes to Logic)
-- BTC Fractal Terminal (building mode)
-- Brain base functionality
-- Admin authentication
+- [ ] Brain v4 state-oriented
+- [ ] BTC Terminal state-oriented
+- [ ] Live β/corr calibration
 
 ## Next Tasks
-1. SPX Verdict Card в FractalPage
-2. Fix NaN% display
-3. Execution Mode блок
+1. Fix overlayWeight = 0% issue
+2. Add "Macro Contribution: +X%" to SPX header
+3. Improve series data quality
