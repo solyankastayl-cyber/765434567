@@ -473,21 +473,152 @@ const FractalTerminal = ({ asset = 'BTC' }) => {
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="fractal-terminal">
-      {/* Header - clean, minimal */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="flex items-center justify-between px-6 py-4">
-          <h1 className="text-xl font-bold text-slate-900">
-            {config.title}
-          </h1>
-          <AsOfDatePicker 
-            asOf={asOf}
-            mode={mode}
-            onAsOfChange={setAsOf}
-            onModeChange={setMode}
-            lastCandle={terminalData?.lastCandle || '2026-02-20'}
-          />
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* UNIFIED HEADER STRIP — SPX state-oriented (like DXY) */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {symbol === 'SPX' && (
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              {/* Market State */}
+              <span className={`text-sm font-semibold ${
+                signal === 'BUY' ? 'text-emerald-600' : 
+                signal === 'SELL' ? 'text-red-500' : 'text-gray-500'
+              }`}>
+                {signal === 'BUY' ? 'BULLISH SPX' : signal === 'SELL' ? 'BEARISH SPX' : 'NEUTRAL'}
+              </span>
+              
+              {/* Confidence */}
+              <div className="text-sm">
+                <span className="text-gray-400">Confidence:</span>
+                <span className="ml-1 font-medium text-gray-900">{Math.round((consensus?.confidence || 0.5) * 100)}%</span>
+              </div>
+              
+              {/* Risk */}
+              <div className="text-sm">
+                <span className="text-gray-400">Risk:</span>
+                <span className={`ml-1 px-2 py-0.5 rounded text-xs font-medium ${
+                  riskLevel === 'CRISIS' || riskLevel === 'HIGH' ? 'text-red-600 bg-red-100' :
+                  riskLevel === 'ELEVATED' ? 'text-amber-600 bg-amber-100' : 'text-gray-600 bg-gray-100'
+                }`}>
+                  {riskLevel}
+                </span>
+              </div>
+              
+              {/* Phase */}
+              <div className="text-sm">
+                <span className="text-gray-400">Phase:</span>
+                <span className="ml-1 font-medium text-gray-900">{marketMode}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span className="px-2 py-1 rounded bg-emerald-100 text-emerald-700">REAL</span>
+            </div>
+          </div>
         </div>
-      </header>
+      )}
+      
+      {/* Original Header for non-SPX */}
+      {symbol !== 'SPX' && (
+        <header className="bg-white border-b border-slate-200">
+          <div className="flex items-center justify-between px-6 py-4">
+            <h1 className="text-xl font-bold text-slate-900">
+              {config.title}
+            </h1>
+            <AsOfDatePicker 
+              asOf={asOf}
+              mode={mode}
+              onAsOfChange={setAsOf}
+              onModeChange={setMode}
+              lastCandle={terminalData?.lastCandle || '2026-02-20'}
+            />
+          </div>
+        </header>
+      )}
+      
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* SPX TITLE + VERDICT CARD (like DXY) */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {symbol === 'SPX' && (
+        <div className="bg-gray-50 px-6 py-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Title */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-gray-900">SPX Fractal Research</h1>
+              <p className="text-gray-500">S&P 500 Index Analysis & Macro Overlay</p>
+            </div>
+            
+            {/* Verdict Card */}
+            <div className="bg-white rounded-xl p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">SPX Verdict</h2>
+                <select 
+                  value={focus}
+                  onChange={(e) => setFocus(e.target.value)}
+                  className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-emerald-600 font-semibold cursor-pointer"
+                >
+                  <option value="7d">7D</option>
+                  <option value="14d">14D</option>
+                  <option value="30d">30D</option>
+                  <option value="90d">90D</option>
+                  <option value="180d">180D</option>
+                  <option value="365d">365D</option>
+                </select>
+              </div>
+              
+              <div className="grid grid-cols-5 gap-6">
+                {/* Market State */}
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Market State</p>
+                  <p className={`text-2xl font-bold ${
+                    signal === 'BUY' ? 'text-emerald-600' : 
+                    signal === 'SELL' ? 'text-red-500' : 'text-gray-500'
+                  }`}>
+                    {signal === 'BUY' ? 'BULLISH' : signal === 'SELL' ? 'BEARISH' : 'HOLD'}
+                  </p>
+                </div>
+                
+                {/* Directional Bias */}
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Directional Bias</p>
+                  <span className={`text-xl font-bold ${
+                    signal === 'BUY' ? 'text-emerald-600' : 
+                    signal === 'SELL' ? 'text-red-500' : 'text-gray-500'
+                  }`}>
+                    SPX {signal === 'BUY' ? '↑' : signal === 'SELL' ? '↓' : '—'}
+                  </span>
+                </div>
+                
+                {/* Expected Move */}
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Expected (P50)</p>
+                  <p className={`text-xl font-bold ${
+                    (overlay?.stats?.medianReturn || 0) > 0 ? 'text-emerald-600' : 
+                    (overlay?.stats?.medianReturn || 0) < 0 ? 'text-red-500' : 'text-gray-500'
+                  }`}>
+                    {(overlay?.stats?.medianReturn || 0) > 0 ? '+' : ''}{((overlay?.stats?.medianReturn || 0) * 100).toFixed(2)}%
+                  </p>
+                </div>
+                
+                {/* Range */}
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Range (P10–P90)</p>
+                  <p className="text-sm font-medium text-gray-700">
+                    {((overlay?.stats?.p10Return || -0.05) * 100).toFixed(2)}% … {((overlay?.stats?.p90Return || 0.05) * 100).toFixed(2)}%
+                  </p>
+                </div>
+                
+                {/* Position Size */}
+                <div>
+                  <p className="text-xs text-gray-400 uppercase mb-1">Position Size</p>
+                  <p className="text-xl font-bold text-gray-900">{sizing?.multiplier?.toFixed(1) || '1.0'}×</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* UNIFIED CONTROL ROW — Status | Mode | Horizon | View Toggle (SPX) */}
       <UnifiedControlRow
