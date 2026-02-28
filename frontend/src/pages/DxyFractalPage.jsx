@@ -641,77 +641,69 @@ const AnalogsBlock = ({ analogs }) => {
 // ═══════════════════════════════════════════════════════════════
 
 const MacroBlock = ({ macro }) => {
-  const [expanded, setExpanded] = useState(false);
-  
   if (!macro) return null;
   
   return (
     <div className="bg-white rounded-xl p-6">
-      <button 
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center justify-between w-full text-left"
-      >
-        <h2 className="text-lg font-semibold text-gray-900">Macro Impact</h2>
-        <div className="flex items-center gap-3">
-          <span className={`font-medium ${macro.scoreSigned > 0 ? 'text-emerald-600' : macro.scoreSigned < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-            {macro.scoreSigned > 0 ? '+' : ''}{macro.scoreSigned}% adjustment
-          </span>
-          {expanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-        </div>
-      </button>
+      <div className="flex items-center justify-between w-full mb-4">
+        <Tooltip content={TOOLTIPS.macroImpact}>
+          <h2 className="text-lg font-semibold text-gray-900">Macro Impact</h2>
+        </Tooltip>
+        <span className={`font-medium ${macro.scoreSigned > 0 ? 'text-emerald-600' : macro.scoreSigned < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+          {macro.scoreSigned > 0 ? '+' : ''}{macro.scoreSigned}% adjustment
+        </span>
+      </div>
       
-      {expanded && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="grid grid-cols-4 gap-4 mb-4">
-            <div>
-              <p className="text-xs text-gray-400 uppercase mb-1">Macro Score</p>
-              <p className="font-medium text-gray-900">{macro.score}%</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 uppercase mb-1">Confidence</p>
-              <p className="font-medium text-gray-900">{macro.confidence}%</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 uppercase mb-1">Regime</p>
-              <p className="font-medium text-gray-900">{macro.regime}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 uppercase mb-1">Delta</p>
-              <p className={`font-medium ${macro.deltaPct > 0 ? 'text-emerald-600' : macro.deltaPct < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                {macro.deltaPct > 0 ? '+' : ''}{macro.deltaPct}%
-              </p>
-            </div>
+      <div className="pt-4 border-t border-gray-100">
+        <div className="grid grid-cols-4 gap-4 mb-4">
+          <div>
+            <p className="text-xs text-gray-400 uppercase mb-1">Macro Score</p>
+            <p className="font-medium text-gray-900">{macro.score}%</p>
           </div>
-          
-          {/* Components table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-gray-400 uppercase border-b border-gray-100">
-                  <th className="text-left py-2">Factor</th>
-                  <th className="text-right py-2">Pressure</th>
-                  <th className="text-right py-2">Weight</th>
-                  <th className="text-right py-2">Contribution</th>
-                </tr>
-              </thead>
-              <tbody>
-                {macro.components?.map((c) => (
-                  <tr key={c.key} className="border-b border-gray-50">
-                    <td className="py-2 text-gray-700">{c.label}</td>
-                    <td className={`py-2 text-right ${c.pressure > 0 ? 'text-emerald-600' : c.pressure < 0 ? 'text-red-600' : 'text-gray-500'}`}>
-                      {c.pressure > 0 ? '+' : ''}{c.pressure}%
-                    </td>
-                    <td className="py-2 text-right text-gray-500">{c.weight}%</td>
-                    <td className={`py-2 text-right ${c.contribution > 0 ? 'text-emerald-600' : c.contribution < 0 ? 'text-red-600' : 'text-gray-500'}`}>
-                      {c.contribution > 0 ? '+' : ''}{c.contribution}%
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div>
+            <p className="text-xs text-gray-400 uppercase mb-1">Confidence</p>
+            <p className="font-medium text-gray-900">{macro.confidence}%</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 uppercase mb-1">Regime</p>
+            <p className="font-medium text-gray-900">{macro.regime}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 uppercase mb-1">Delta</p>
+            <p className={`font-medium ${macro.deltaPct > 0 ? 'text-emerald-600' : macro.deltaPct < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+              {macro.deltaPct > 0 ? '+' : ''}{macro.deltaPct}%
+            </p>
           </div>
         </div>
-      )}
+        
+        {/* Components table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-gray-400 uppercase border-b border-gray-100">
+                <th className="text-left py-2">Factor</th>
+                <th className="text-right py-2">Pressure</th>
+                <th className="text-right py-2">Weight</th>
+                <th className="text-right py-2">Contribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              {macro.components?.map((c) => (
+                <tr key={c.key} className="border-b border-gray-50">
+                  <td className="py-2 text-gray-700">{c.label}</td>
+                  <td className={`py-2 text-right ${c.pressure > 0 ? 'text-emerald-600' : c.pressure < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                    {c.pressure > 0 ? '+' : ''}{c.pressure}%
+                  </td>
+                  <td className="py-2 text-right text-gray-500">{c.weight}%</td>
+                  <td className={`py-2 text-right ${c.contribution > 0 ? 'text-emerald-600' : c.contribution < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                    {c.contribution > 0 ? '+' : ''}{c.contribution}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
