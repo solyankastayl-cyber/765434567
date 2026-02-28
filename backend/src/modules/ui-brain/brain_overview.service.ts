@@ -193,17 +193,19 @@ async function buildMacroInputs(worldState: any, macroPack: any): Promise<Indica
     lastUpdate: now,
   });
   
-  // 7. HOUSING
-  const housing = worldState?.macro?.housingStarts ?? macroPack?.components?.housing ?? null;
+  // 7. HOUSING - use real FRED HOUST data
+  const housingRaw = realData.housingStarts ?? null;
+  // Housing starts are in thousands, normalize to show meaningful value
+  const housing = housingRaw !== null ? housingRaw : (worldState?.macro?.housingStarts ?? macroPack?.components?.housing ?? null);
   indicators.push({
     key: 'housing',
     title: 'Housing Activity',
-    value: housing !== null ? (housing > 0 ? '+' : '') + `${(housing * 100).toFixed(1)}%` : 'N/A',
+    value: housingRaw !== null ? `${housingRaw.toFixed(0)}K` : (housing !== null ? (housing > 0 ? '+' : '') + `${(housing * 100).toFixed(1)}%` : 'N/A'),
     direction: housing !== null ? (housing > 0 ? 'up' : 'down') : undefined,
-    status: housing !== null ? (housing > 0.05 ? 'positive' : housing < -0.05 ? 'negative' : 'neutral') : 'nodata',
+    status: housingRaw !== null ? (housingRaw > 1500 ? 'positive' : housingRaw < 1200 ? 'negative' : 'neutral') : (housing !== null ? (housing > 0.05 ? 'positive' : housing < -0.05 ? 'negative' : 'neutral') : 'nodata'),
     impact: 'neutral',
-    explanation: housing !== null ? (housing > 0.05 ? 'Expanding' : housing < -0.05 ? 'Contracting' : 'Stable') : 'No data',
-    tooltip: 'Housing starts growth. Leading indicator of economic activity.',
+    explanation: housingRaw !== null ? (housingRaw > 1500 ? 'Strong housing' : housingRaw < 1200 ? 'Weak housing' : 'Moderate') : (housing !== null ? (housing > 0.05 ? 'Expanding' : housing < -0.05 ? 'Contracting' : 'Stable') : 'No data'),
+    tooltip: 'Housing starts (thousands). Leading indicator of economic activity.',
     lastUpdate: now,
   });
   
