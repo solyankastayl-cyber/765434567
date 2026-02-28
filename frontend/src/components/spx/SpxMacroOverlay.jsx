@@ -24,43 +24,6 @@ import {
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
 // ═══════════════════════════════════════════════════════════════
-// TYPES
-// ═══════════════════════════════════════════════════════════════
-
-interface ProjectionPack {
-  horizon: string;
-  asOf: string;
-  expectedP50: number;
-  rangeP10P90: [number, number];
-  series: Array<{ t: number; y: number }>;
-  confidence: number;
-  quality: number;
-  dataStatus: string;
-}
-
-interface MacroOverlayMeta {
-  corr: number;
-  beta: number;
-  overlayWeight: number;
-  dxyDeltaP50: number;
-  spxBaseP50: number;
-  adjustmentP50: number;
-  adjustedP50: number;
-  reasonCodes: string[];
-  overlayActive: boolean;
-}
-
-interface MacroOverlayData {
-  ok: boolean;
-  mode: string;
-  adjusted: ProjectionPack;
-  baseHybrid: ProjectionPack;
-  dxyMacro: ProjectionPack | null;
-  meta: MacroOverlayMeta;
-  horizon: string;
-}
-
-// ═══════════════════════════════════════════════════════════════
 // HOOK
 // ═══════════════════════════════════════════════════════════════
 
