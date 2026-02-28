@@ -64,10 +64,10 @@ interface MacroOverlayData {
 // HOOK
 // ═══════════════════════════════════════════════════════════════
 
-export function useSpxMacroOverlay(horizon: string) {
-  const [data, setData] = useState<MacroOverlayData | null>(null);
+export function useSpxMacroOverlay(horizon) {
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
