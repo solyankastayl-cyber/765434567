@@ -93,9 +93,6 @@ const getPhaseLabel = (phase) => {
   };
   return phaseMap[phase] || phase.replace(/_/g, ' ');
 };
-    default: return 'text-amber-600';
-  }
-};
 
 const getCausalColor = (dir) => {
   switch (dir) {
