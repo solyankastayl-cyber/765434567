@@ -196,8 +196,41 @@ export function FractalHybridChart({
       p90: distributionSeries.p90?.[lastIdx] ?? 0.15,
     };
     
+    // Build unifiedPath - add macroPath if we have macro overlay
+    let unifiedPath = fp.unifiedPath || null;
+    
+    // SPX MACRO MODE: Build macroPath from overlay data
+    if (mode === 'macro' && symbol === 'SPX' && macroOverlay?.adjusted?.series?.length) {
+      const adjustedSeries = macroOverlay.adjusted.series;
+      const baseSeries = macroOverlay.baseHybrid?.series || [];
+      
+      // Create or extend unifiedPath with macroPath
+      const macroPath = adjustedSeries.map((p, idx) => ({
+        t: idx,
+        price: p.y,
+        pct: ((p.y - currentPrice) / currentPrice) * 100
+      }));
+      
+      const hybridPath = baseSeries.map((p, idx) => ({
+        t: idx,
+        price: p.y,
+        pct: ((p.y - currentPrice) / currentPrice) * 100
+      }));
+      
+      unifiedPath = {
+        ...unifiedPath,
+        macroPath,
+        hybridPath: unifiedPath?.hybridPath || hybridPath,
+        syntheticPath: unifiedPath?.syntheticPath || [],
+        replayPath: unifiedPath?.replayPath || [],
+        anchorPrice: currentPrice,
+        horizonDays: aftermathDays,
+        macroAdjustment: macroOverlay.meta?.adjustmentP50 || 0,
+      };
+    }
+    
     return {
-      pricePath: fp.pricePath || fp.path || [], // Use pricePath first, fallback to path
+      pricePath: fp.pricePath || fp.path || [],
       upperBand: fp.upperBand || [],
       lowerBand: fp.lowerBand || [],
       tailFloor: fp.tailFloor,
@@ -212,10 +245,9 @@ export function FractalHybridChart({
       currentPrice,
       distribution7d,
       stats: overlay?.stats || {},
-      // IMPORTANT: Pass unifiedPath for hybrid chart with all three paths
-      unifiedPath: fp.unifiedPath || null,
+      unifiedPath,
     };
-  }, [chart, focusPack]);
+  }, [chart, focusPack, mode, symbol, macroOverlay]);
   
   // Get primary replay match - BLOCK 73.1: Use weighted primaryMatch
   // BLOCK 73.4: Override with custom replay pack if selected
