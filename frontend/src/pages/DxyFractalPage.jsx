@@ -210,20 +210,83 @@ const HeaderStrip = ({ header }) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
+// HORIZON DROPDOWN
+// ═══════════════════════════════════════════════════════════════
+
+const HORIZON_OPTIONS = [
+  { value: 7, label: '7D' },
+  { value: 14, label: '14D' },
+  { value: 30, label: '30D' },
+  { value: 90, label: '90D' },
+  { value: 180, label: '180D' },
+  { value: 365, label: '1Y' },
+];
+
+const HorizonDropdown = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const selected = HORIZON_OPTIONS.find(o => o.value === value) || HORIZON_OPTIONS[3];
+  
+  return (
+    <div className="relative inline-block">
+      <button
+        data-testid="horizon-dropdown-trigger"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+      >
+        <span className="font-semibold text-emerald-600">{selected.label}</span>
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          
+          {/* Dropdown */}
+          <div 
+            data-testid="horizon-dropdown-menu"
+            className="absolute left-0 top-full mt-1 w-32 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50"
+          >
+            {HORIZON_OPTIONS.map(option => (
+              <button
+                key={option.value}
+                data-testid={`horizon-option-${option.value}`}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors ${
+                  option.value === value
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
 // VERDICT CARD
 // ═══════════════════════════════════════════════════════════════
 
-const VerdictCard = ({ verdict }) => {
+const VerdictCard = ({ verdict, horizon, onHorizonChange }) => {
   if (!verdict) return null;
   
   const BiasIcon = getBiasIcon(verdict.bias);
   
   return (
     <div className="bg-white rounded-xl p-6 mb-6">
-      <div className="relative mb-4">
+      <div className="relative mb-4 flex items-center gap-3">
         <Tooltip content={TOOLTIPS.verdict}>
-          <h2 className="text-xl font-semibold text-gray-900">DXY Verdict ({verdict.horizon}D)</h2>
+          <h2 className="text-xl font-semibold text-gray-900">DXY Verdict</h2>
         </Tooltip>
+        <HorizonDropdown value={horizon} onChange={onHorizonChange} />
       </div>
       
       <div className="grid grid-cols-6 gap-6 mb-6">
