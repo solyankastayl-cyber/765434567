@@ -229,6 +229,7 @@ class GitHubRepoTester:
         
         # Core functionality tests
         self.test_brain_overview()
+        self.test_brain_decision_v4()  # New Brain v4 test
         self.test_dxy_macro_series() 
         self.test_fractal_endpoints()
         self.test_admin_endpoints()
