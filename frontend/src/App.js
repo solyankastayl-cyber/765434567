@@ -636,8 +636,7 @@ function App() {
               <Route path="/fractal/dxy" element={<FractalPage asset="DXY" />} />
               <Route path="/dxy" element={<FractalPage asset="DXY" />} />
               
-              {/* AE Brain — Macro Analysis Engine */}
-              <Route path="/fractal/ae-brain" element={<AeBrainPage />} />
+              {/* AE Brain removed - replaced by Brain v4 at /brain */}
               
               {/* Brain Overview v3 — Institutional AI Macro Risk Dashboard */}
               <Route path="/brain" element={<BrainOverviewPage />} />
