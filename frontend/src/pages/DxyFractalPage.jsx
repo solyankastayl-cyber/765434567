@@ -207,28 +207,44 @@ const TOOLTIPS = {
 // HEADER STRIP
 // ═══════════════════════════════════════════════════════════════
 
-const HeaderStrip = ({ header }) => {
+const HeaderStrip = ({ header, verdict }) => {
   if (!header) return null;
+  
+  // Convert to state-oriented terminology
+  const marketState = actionToState(header.signal, verdict?.bias);
+  const stateLabel = marketState === 'BULLISH' ? 'BULLISH USD' : 
+                     marketState === 'BEARISH' ? 'BEARISH USD' : 'HOLD';
   
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <div className={`px-3 py-1 rounded-full font-medium text-sm ${getActionColor(header.signal)}`}>
-            {header.signal}
-          </div>
+          {/* Market State */}
+          <span className={`text-sm font-semibold ${getStateColor(marketState)}`}>
+            {stateLabel}
+          </span>
+          
+          {/* Confidence */}
           <div className="text-sm">
             <span className="text-gray-400">Confidence:</span>
             <span className="ml-1 font-medium text-gray-900">{header.confidence}%</span>
           </div>
-          <div className={`px-2 py-1 rounded text-xs font-medium ${getRiskColor(header.risk)}`}>
-            {header.risk}
+          
+          {/* Risk */}
+          <div className="text-sm">
+            <span className="text-gray-400">Risk:</span>
+            <span className={`ml-1 px-2 py-0.5 rounded text-xs font-medium ${getRiskColor(header.risk)}`}>
+              {header.risk}
+            </span>
           </div>
+          
+          {/* Regime */}
           <div className="text-sm">
             <span className="text-gray-400">Regime:</span>
             <span className="ml-1 font-medium text-gray-900">{header.regime?.replace('_', ' ')}</span>
           </div>
         </div>
+        
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <span>As of: {header.asOf}</span>
           <span className={`px-2 py-1 rounded ${header.dataStatus === 'REAL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
