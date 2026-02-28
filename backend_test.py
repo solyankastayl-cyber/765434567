@@ -109,6 +109,58 @@ class GitHubRepoTester:
         
         return success
     
+    def test_brain_decision_v4(self):
+        """Test Brain v4 Decision Engine endpoint"""
+        print("\n🧠 Testing Brain v4 Decision Engine...")
+        success, data, status = self.test_endpoint("api/ui/brain/decision")
+        
+        if success and isinstance(data, dict):
+            # Check required Brain v4 structure
+            required_fields = [
+                'verdict', 'action', 'reasons', 'horizons', 'risk', 
+                'causal', 'macroSummary', 'allocation', 'capitalScaling', 
+                'transparency', 'advanced'
+            ]
+            
+            missing_fields = []
+            present_fields = []
+            
+            for field in required_fields:
+                if field in data:
+                    present_fields.append(field)
+                else:
+                    missing_fields.append(field)
+            
+            if len(missing_fields) == 0:
+                self.log_test("Brain v4 Structure", True, f"All {len(required_fields)} components present")
+            else:
+                self.log_test("Brain v4 Structure", False, f"Missing: {', '.join(missing_fields)}")
+            
+            # Check verdict structure
+            verdict = data.get('verdict', {})
+            if verdict and 'regime' in verdict and 'dominantBias' in verdict:
+                regime = verdict.get('regime', 'unknown')
+                bias = verdict.get('dominantBias', 'unknown')
+                confidence = verdict.get('confidence', 0)
+                self.log_test("Market Verdict", True, f"Regime: {regime}, Bias: {bias}, Confidence: {confidence}%")
+            else:
+                self.log_test("Market Verdict", False, "Missing verdict structure")
+            
+            # Check macro summary for FRED data
+            macro_summary = data.get('macroSummary', [])
+            if len(macro_summary) >= 3:
+                indicators = [m.get('title', 'Unknown') for m in macro_summary[:3]]
+                self.log_test("Macro Indicators", True, f"Found {len(macro_summary)} indicators: {', '.join(indicators)}")
+            else:
+                self.log_test("Macro Indicators", False, f"Only {len(macro_summary)} indicators found")
+                
+        elif status == 200:
+            self.log_test("Brain v4 Decision API", True, "Endpoint accessible but no detailed data check")
+        else:
+            self.log_test("Brain v4 Decision API", False, f"{data}")
+        
+        return success
+    
     def test_dxy_macro_series(self):
         """Test DXY macro core series endpoint"""
         print("\n📊 Testing DXY Macro Core Series...")
