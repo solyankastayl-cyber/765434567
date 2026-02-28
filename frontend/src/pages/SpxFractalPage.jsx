@@ -1,15 +1,15 @@
 /**
- * DXY FRACTAL PAGE — Decision Engine Approach
+ * SPX FRACTAL PAGE — Decision Engine Approach (Mirror of DXY)
  * 
  * Structure:
- * 0) Header Strip (Signal, Confidence, Risk, Regime)
- * 1) Verdict Card (Action, Bias, Expected Move, Size)
- * 2) Main Chart (Synthetic/Replay/Hybrid/Macro)
+ * 0) Header Strip (Signal, Confidence, Risk, Phase)
+ * 1) Verdict Card (Market State, Bias, Expected Move, Size)
+ * 2) Main Chart (Synthetic/Replay/Hybrid/Macro ★)
  * 3) Forecast by Horizon Table
  * 4) Why This Verdict (Drivers + Transmission)
  * 5) Risk Context
  * 6) Historical Analogs
- * 7) Macro Impact (collapsible)
+ * 7) Macro Impact (for Macro ★ mode)
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -40,10 +40,10 @@ const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 // HELPERS & COLORS
 // ═══════════════════════════════════════════════════════════════
 
-// Convert action to market state
-const actionToState = (action, bias) => {
-  if (action === 'BUY' || bias === 'USD_UP') return 'BULLISH';
-  if (action === 'SELL' || bias === 'USD_DOWN') return 'BEARISH';
+// Convert action to market state for SPX
+const actionToState = (action, medianReturn) => {
+  if (action === 'BUY' || medianReturn > 0.01) return 'BULLISH';
+  if (action === 'SELL' || medianReturn < -0.01) return 'BEARISH';
   return 'HOLD';
 };
 
@@ -63,41 +63,36 @@ const getStateBgColor = (state) => {
   }
 };
 
-const getBiasIcon = (bias) => {
-  switch (bias) {
-    case 'USD_UP': return TrendingUp;
-    case 'USD_DOWN': return TrendingDown;
-    default: return Minus;
-  }
-};
-
-const getBiasArrow = (bias) => {
-  if (bias === 'USD_UP') return '↑';
-  if (bias === 'USD_DOWN') return '↓';
+const getBiasArrow = (medianReturn) => {
+  if (medianReturn > 0.005) return '↑';
+  if (medianReturn < -0.005) return '↓';
   return '—';
 };
 
 const getRiskColor = (risk) => {
   switch (risk) {
-    case 'STRESS': return 'text-red-600 bg-red-100';
-    case 'ELEVATED': return 'text-amber-600 bg-amber-100';
+    case 'STRESS': case 'HIGH': return 'text-red-600 bg-red-100';
+    case 'ELEVATED': case 'MEDIUM': return 'text-amber-600 bg-amber-100';
     case 'LOW': return 'text-emerald-600 bg-emerald-100';
     default: return 'text-gray-600 bg-gray-100';
   }
 };
 
-const getSentimentDot = (sentiment) => {
-  switch (sentiment) {
-    case 'supportive': return 'bg-emerald-500';
-    case 'headwind': return 'bg-red-500';
-    default: return 'bg-amber-500';
-  }
+const getPhaseLabel = (phase) => {
+  if (!phase) return 'Unknown';
+  const phaseMap = {
+    'BULL_EXPANSION': 'Markup',
+    'BULL_COOLDOWN': 'Distribution',
+    'BEAR_DRAWDOWN': 'Markdown',
+    'BEAR_RALLY': 'Accumulation',
+    'SIDEWAYS_RANGE': 'Ranging',
+    'MARKUP': 'Markup',
+    'MARKDOWN': 'Markdown',
+    'DISTRIBUTION': 'Distribution',
+    'ACCUMULATION': 'Accumulation',
+  };
+  return phaseMap[phase] || phase.replace(/_/g, ' ');
 };
-
-const getSentimentText = (sentiment) => {
-  switch (sentiment) {
-    case 'supportive': return 'text-emerald-600';
-    case 'headwind': return 'text-red-600';
     default: return 'text-amber-600';
   }
 };
