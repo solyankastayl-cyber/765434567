@@ -1,41 +1,19 @@
 /**
- * BRAIN v4 — DECISION ENGINE PAGE
+ * MACRO BRAIN — Decision Engine Page
  * 
  * Brain is not a dashboard. It's a decision engine.
  * It answers: Where are we? What to do? Why? How confident?
- * 
- * Structure:
- * Layer 1: Final Verdict (The Answer)
- * Layer 2: Why This View (Reasoning)
- * Layer 3: Horizon Phase Map
- * Layer 4: Risk Map
- * Layer 5: Causal Flow
- * Layer 6: Macro Indicators (detail)
- * Layer 7: Allocation Pipeline
- * Layer 8: Capital Scaling
- * Layer 9: Model Transparency
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Brain, 
-  Shield, 
   TrendingUp, 
   TrendingDown,
   Minus,
   AlertTriangle,
-  CheckCircle,
-  Activity,
   ArrowRight,
-  ChevronDown,
-  ChevronUp,
-  Info,
-  Zap,
-  Target,
-  Scale,
-  BarChart3,
-  Clock,
-  Layers
+  Brain,
+  Shield
 } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || '';
@@ -70,9 +48,9 @@ const getSentimentDot = (sentiment) => {
 
 const getPostureStyles = (posture) => {
   switch (posture) {
-    case 'OFFENSIVE': return { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200' };
-    case 'DEFENSIVE': return { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' };
-    default: return { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' };
+    case 'OFFENSIVE': return { bg: 'bg-emerald-100', text: 'text-emerald-800' };
+    case 'DEFENSIVE': return { bg: 'bg-red-100', text: 'text-red-800' };
+    default: return { bg: 'bg-gray-100', text: 'text-gray-800' };
   }
 };
 
@@ -102,31 +80,129 @@ const getStrengthWidth = (strength) => {
 
 const getCausalColor = (direction) => {
   switch (direction) {
-    case 'positive': return '#10B981'; // emerald
-    case 'negative': return '#EF4444'; // red
-    default: return '#9CA3AF'; // gray
+    case 'positive': return '#10B981';
+    case 'negative': return '#EF4444';
+    default: return '#6B7280';
   }
 };
 
 // ═══════════════════════════════════════════════════════════════
-// TOOLTIP COMPONENT
+// DARK TOOLTIP COMPONENT - Black design with colors
 // ═══════════════════════════════════════════════════════════════
 
-const Tooltip = ({ children, content }) => {
+const SectionTooltip = ({ children, title, content }) => {
   const [show, setShow] = useState(false);
   
-  if (!content) return children;
-  
   return (
-    <div className="relative inline-block" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+    <span 
+      className="cursor-help border-b border-dotted border-gray-400"
+      onMouseEnter={() => setShow(true)} 
+      onMouseLeave={() => setShow(false)}
+    >
       {children}
       {show && (
-        <div className="absolute z-50 w-72 p-3 text-xs bg-white border border-gray-100 rounded-lg shadow-lg -top-2 left-full ml-2">
-          {content}
+        <div className="absolute z-50 w-80 p-4 mt-2 bg-gray-900 text-white text-sm rounded-lg shadow-xl">
+          {title && <p className="font-semibold text-white mb-2">{title}</p>}
+          <div className="text-gray-300 leading-relaxed">{content}</div>
         </div>
       )}
-    </div>
+    </span>
   );
+};
+
+// Tooltip descriptions for each section
+const TOOLTIPS = {
+  verdict: {
+    title: "Market Verdict",
+    content: (
+      <div className="space-y-2">
+        <p>The final output of the macro analysis engine combining all signals.</p>
+        <p><span className="text-emerald-400 font-medium">Regime</span> — Current market environment classification</p>
+        <p><span className="text-emerald-400 font-medium">Bias</span> — Dominant directional tendency over 90 days</p>
+        <p><span className="text-emerald-400 font-medium">Posture</span> — Recommended risk stance (Offensive/Defensive/Neutral)</p>
+        <p><span className="text-amber-400 font-medium">Confidence</span> — Model certainty level (0-100%)</p>
+      </div>
+    )
+  },
+  reasons: {
+    title: "Why This View",
+    content: (
+      <div className="space-y-2">
+        <p>Key factors driving the current market assessment.</p>
+        <p><span className="text-emerald-400">●</span> Green = Supportive for risk assets</p>
+        <p><span className="text-amber-400">●</span> Orange = Neutral impact</p>
+        <p><span className="text-red-400">●</span> Red = Risk factor / headwind</p>
+      </div>
+    )
+  },
+  horizons: {
+    title: "Market Phase by Horizon",
+    content: (
+      <div className="space-y-2">
+        <p>Expected market direction across different time horizons.</p>
+        <p>Phase is derived from combined fractal pattern matching and macro regime analysis.</p>
+        <p><span className="text-emerald-400 font-medium">Bullish</span> — Expected upward movement</p>
+        <p><span className="text-red-400 font-medium">Bearish</span> — Expected downward movement</p>
+        <p><span className="text-gray-400 font-medium">Neutral</span> — No clear directional bias</p>
+        <p className="text-xs text-gray-500 mt-2">Strength: Weak → Medium → Strong</p>
+      </div>
+    )
+  },
+  risk: {
+    title: "Risk Map",
+    content: (
+      <div className="space-y-2">
+        <p>Current risk environment assessment.</p>
+        <p><span className="text-white font-medium">Volatility</span> — Market volatility regime (Low/Normal/Elevated/Extreme)</p>
+        <p><span className="text-white font-medium">Tail Risk</span> — Probability of extreme market moves</p>
+        <p><span className="text-red-400 font-medium">Guard Status</span> — System protection level triggered</p>
+        <p><span className="text-white font-medium">Capital Scale</span> — Exposure adjustment based on risk</p>
+      </div>
+    )
+  },
+  causal: {
+    title: "Causal Flow",
+    content: (
+      <div className="space-y-2">
+        <p>How macro factors transmit through markets.</p>
+        <p><span className="text-emerald-400">→</span> Green arrow = Positive pressure</p>
+        <p><span className="text-red-400">→</span> Red arrow = Negative pressure</p>
+        <p><span className="text-gray-400">→</span> Gray arrow = Neutral</p>
+        <p className="mt-2 text-xs">Example: Rising inflation → Higher rates → Stronger USD → Pressure on SPX</p>
+      </div>
+    )
+  },
+  macro: {
+    title: "Macro Indicators",
+    content: (
+      <div className="space-y-2">
+        <p>Real-time economic data from Federal Reserve (FRED).</p>
+        <p>Hover on each indicator for detailed interpretation including normal ranges, risk zones, and market impacts.</p>
+      </div>
+    )
+  },
+  allocation: {
+    title: "Allocation Pipeline",
+    content: (
+      <div className="space-y-2">
+        <p>How the model transforms base allocations into final recommendations.</p>
+        <p><span className="text-white font-medium">Base</span> — Starting allocation</p>
+        <p><span className="text-white font-medium">After Brain</span> — After macro adjustments</p>
+        <p><span className="text-white font-medium">Final</span> — After risk scaling applied</p>
+      </div>
+    )
+  },
+  scaling: {
+    title: "Capital Scaling",
+    content: (
+      <div className="space-y-2">
+        <p>Dynamic exposure adjustment based on market conditions.</p>
+        <p><span className="text-emerald-400 font-medium">100%</span> = Full exposure allowed</p>
+        <p><span className="text-amber-400 font-medium">70-99%</span> = Moderate reduction</p>
+        <p><span className="text-red-400 font-medium">&lt;70%</span> = Significant risk reduction</p>
+      </div>
+    )
+  }
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -142,19 +218,18 @@ const VerdictBlock = ({ verdict, action }) => {
   
   return (
     <div className="mb-8">
-      {/* Main Verdict Card */}
       <div className="bg-white rounded-xl p-8">
         <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">Market Verdict</h1>
-            <p className="text-sm text-gray-500">Decision engine output</p>
+          <div className="relative">
+            <SectionTooltip {...TOOLTIPS.verdict}>
+              <h2 className="text-2xl font-semibold text-gray-900">Market Verdict</h2>
+            </SectionTooltip>
           </div>
           <div className={`px-4 py-2 rounded-full ${postureStyles.bg} ${postureStyles.text} font-medium text-sm`}>
             {verdict.posture}
           </div>
         </div>
         
-        {/* Verdict Grid */}
         <div className="grid grid-cols-4 gap-6 mb-8">
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Regime</p>
@@ -177,13 +252,11 @@ const VerdictBlock = ({ verdict, action }) => {
           </div>
         </div>
         
-        {/* Primary Action - Big and Clear */}
         <div className="bg-gray-50 rounded-lg p-6 mb-6">
           <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Primary Action</p>
           <p className="text-xl font-medium text-gray-900">{action.primary}</p>
         </div>
         
-        {/* Size Guidance */}
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Size Multiplier</p>
@@ -212,7 +285,11 @@ const ReasonsBlock = ({ reasons }) => {
   
   return (
     <div className="bg-white rounded-xl p-6 mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Why This View</h2>
+      <div className="relative mb-4">
+        <SectionTooltip {...TOOLTIPS.reasons}>
+          <h2 className="text-lg font-semibold text-gray-900">Why This View</h2>
+        </SectionTooltip>
+      </div>
       <div className="space-y-3">
         {reasons.map((reason, idx) => (
           <div key={idx} className="flex items-center gap-3">
@@ -236,11 +313,10 @@ const HorizonBlock = ({ horizons }) => {
   
   return (
     <div className="bg-white rounded-xl p-6 mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Market Phase by Horizon</h2>
-        <Tooltip content="Phase derived from combined fractal + macro regime model">
-          <Info className="w-4 h-4 text-gray-400 cursor-help" />
-        </Tooltip>
+      <div className="relative mb-4">
+        <SectionTooltip {...TOOLTIPS.horizons}>
+          <h2 className="text-lg font-semibold text-gray-900">Market Phase by Horizon</h2>
+        </SectionTooltip>
       </div>
       
       <div className="grid grid-cols-4 gap-4">
@@ -251,9 +327,8 @@ const HorizonBlock = ({ horizons }) => {
               <p className="font-medium">{h.phase}</p>
               <p className="text-xs mt-1 opacity-70 capitalize">{h.strength}</p>
             </div>
-            {/* Strength bar */}
             <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
-              <div className={`h-full bg-current ${getStrengthWidth(h.strength)} ${getPhaseColor(h.phase).split(' ')[0]}`} />
+              <div className={`h-full ${getStrengthWidth(h.strength)} ${h.phase === 'BULLISH' ? 'bg-emerald-500' : h.phase === 'BEARISH' ? 'bg-red-500' : 'bg-gray-400'}`} />
             </div>
           </div>
         ))}
@@ -273,9 +348,11 @@ const RiskBlock = ({ risk }) => {
   
   return (
     <div className={`rounded-xl p-6 mb-8 ${isElevated ? 'bg-red-50' : 'bg-white'}`}>
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4 relative">
         <Shield className={`w-5 h-5 ${isElevated ? 'text-red-600' : 'text-gray-600'}`} />
-        <h2 className={`text-lg font-semibold ${isElevated ? 'text-red-900' : 'text-gray-900'}`}>Risk Map</h2>
+        <SectionTooltip {...TOOLTIPS.risk}>
+          <h2 className={`text-lg font-semibold ${isElevated ? 'text-red-900' : 'text-gray-900'}`}>Risk Map</h2>
+        </SectionTooltip>
       </div>
       
       <div className="grid grid-cols-5 gap-4">
@@ -307,7 +384,7 @@ const RiskBlock = ({ risk }) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// LAYER 5: CAUSAL FLOW
+// LAYER 5: CAUSAL FLOW - No borders on asset labels
 // ═══════════════════════════════════════════════════════════════
 
 const CausalBlock = ({ causal }) => {
@@ -315,7 +392,11 @@ const CausalBlock = ({ causal }) => {
   
   return (
     <div className="bg-white rounded-xl p-6 mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Causal Flow</h2>
+      <div className="relative mb-4">
+        <SectionTooltip {...TOOLTIPS.causal}>
+          <h2 className="text-lg font-semibold text-gray-900">Causal Flow</h2>
+        </SectionTooltip>
+      </div>
       
       <div className="space-y-4">
         {causal.map((chain) => (
@@ -332,12 +413,12 @@ const CausalBlock = ({ causal }) => {
                 )}
               </React.Fragment>
             ))}
-            <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-              chain.netEffect === 'positive' ? 'bg-emerald-100 text-emerald-700' :
-              chain.netEffect === 'negative' ? 'bg-red-100 text-red-700' :
-              'bg-gray-100 text-gray-700'
+            <span className={`ml-2 text-sm font-semibold ${
+              chain.netEffect === 'positive' ? 'text-emerald-600' :
+              chain.netEffect === 'negative' ? 'text-red-600' :
+              'text-gray-600'
             }`}>
-              {chain.targetAsset}
+              → {chain.targetAsset}
             </span>
           </div>
         ))}
@@ -347,38 +428,37 @@ const CausalBlock = ({ causal }) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// LAYER 6: MACRO INDICATORS
+// LAYER 6: MACRO INDICATORS - Compact design
 // ═══════════════════════════════════════════════════════════════
 
 const MacroIndicatorCard = ({ indicator }) => {
-  const tooltipContent = (
-    <div className="space-y-2">
-      <p><strong>Current:</strong> {indicator.currentValue}</p>
-      <p><strong>Normal Range:</strong> {indicator.normalRange}</p>
-      <p><strong>Risk Zone:</strong> {indicator.riskRange}</p>
-      <hr className="border-gray-100" />
-      <p><strong>Bullish when:</strong> {indicator.bullishCondition}</p>
-      <p><strong>Bearish when:</strong> {indicator.bearishCondition}</p>
-      <hr className="border-gray-100" />
-      <p><strong>USD Impact:</strong> {indicator.usdImpact}</p>
-      <p><strong>SPX Impact:</strong> {indicator.spxImpact}</p>
-      <p><strong>BTC Impact:</strong> {indicator.btcImpact}</p>
-    </div>
-  );
+  const [showTooltip, setShowTooltip] = useState(false);
   
   return (
-    <Tooltip content={tooltipContent}>
-      <div className={`p-4 rounded-lg cursor-help ${getSentimentBg(indicator.status)}`}>
-        <div className="flex items-start justify-between mb-2">
-          <p className="text-xs text-gray-500">{indicator.title}</p>
-          <Info className="w-3 h-3 text-gray-400" />
+    <div 
+      className={`p-3 rounded-lg cursor-help relative ${getSentimentBg(indicator.status)}`}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <p className="text-xs text-gray-500 mb-1">{indicator.title}</p>
+      <p className={`text-lg font-semibold ${getSentimentColor(indicator.status)}`}>
+        {indicator.currentValue}
+      </p>
+      <p className="text-xs text-gray-500">{indicator.interpretation}</p>
+      
+      {showTooltip && (
+        <div className="absolute z-50 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl left-full ml-2 top-0">
+          <p className="font-semibold text-white mb-2">{indicator.title}</p>
+          <div className="space-y-1 text-gray-300">
+            <p><span className="text-gray-500">Normal:</span> {indicator.normalRange}</p>
+            <p><span className="text-red-400">Risk:</span> {indicator.riskRange}</p>
+            <hr className="border-gray-700 my-2" />
+            <p><span className="text-emerald-400">Bullish:</span> {indicator.bullishCondition}</p>
+            <p><span className="text-red-400">Bearish:</span> {indicator.bearishCondition}</p>
+          </div>
         </div>
-        <p className={`text-xl font-semibold ${getSentimentColor(indicator.status)}`}>
-          {indicator.currentValue}
-        </p>
-        <p className="text-xs text-gray-500 mt-1">{indicator.interpretation}</p>
-      </div>
-    </Tooltip>
+      )}
+    </div>
   );
 };
 
@@ -387,8 +467,12 @@ const MacroBlock = ({ macroSummary }) => {
   
   return (
     <div className="bg-white rounded-xl p-6 mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Macro Indicators</h2>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="relative mb-4">
+        <SectionTooltip {...TOOLTIPS.macro}>
+          <h2 className="text-lg font-semibold text-gray-900">Macro Indicators</h2>
+        </SectionTooltip>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
         {macroSummary.map((indicator) => (
           <MacroIndicatorCard key={indicator.key} indicator={indicator} />
         ))}
@@ -412,9 +496,12 @@ const AllocationBlock = ({ allocation }) => {
   
   return (
     <div className="bg-white rounded-xl p-6 mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Allocation Pipeline</h2>
+      <div className="relative mb-4">
+        <SectionTooltip {...TOOLTIPS.allocation}>
+          <h2 className="text-lg font-semibold text-gray-900">Allocation Pipeline</h2>
+        </SectionTooltip>
+      </div>
       
-      {/* Pipeline visualization */}
       <div className="flex items-center justify-between mb-6">
         {steps.map((step, idx) => (
           <React.Fragment key={step.label}>
@@ -442,7 +529,6 @@ const AllocationBlock = ({ allocation }) => {
         ))}
       </div>
       
-      {/* Impact breakdown */}
       <div className="grid grid-cols-4 gap-4 pt-4 border-t border-gray-100">
         <div>
           <p className="text-xs text-gray-400">Brain Impact</p>
@@ -456,7 +542,7 @@ const AllocationBlock = ({ allocation }) => {
           <p className="text-xs text-gray-400">Scaling Impact</p>
           <p className="font-medium text-gray-900">{allocation.impact.scalingImpact > 0 ? '+' : ''}{allocation.impact.scalingImpact}%</p>
         </div>
-        <div className="col-span-1">
+        <div>
           <p className="text-xs text-gray-400">Status</p>
           <p className="text-sm text-gray-600">{allocation.impact.explanation}</p>
         </div>
@@ -475,11 +561,18 @@ const CapitalScalingBlock = ({ capitalScaling }) => {
   return (
     <div className="bg-white rounded-xl p-6 mb-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Capital Scaling</h2>
-        <span className="text-2xl font-bold text-gray-900">{capitalScaling.scaleFactor}%</span>
+        <div className="relative">
+          <SectionTooltip {...TOOLTIPS.scaling}>
+            <h2 className="text-lg font-semibold text-gray-900">Capital Scaling</h2>
+          </SectionTooltip>
+        </div>
+        <span className={`text-2xl font-bold ${
+          capitalScaling.scaleFactor >= 90 ? 'text-emerald-600' :
+          capitalScaling.scaleFactor >= 70 ? 'text-amber-600' :
+          'text-red-600'
+        }`}>{capitalScaling.scaleFactor}%</span>
       </div>
       
-      {/* Drivers */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         {capitalScaling.drivers.map((driver) => (
           <div key={driver.name} className="p-3 bg-gray-50 rounded-lg">
@@ -492,78 +585,6 @@ const CapitalScalingBlock = ({ capitalScaling }) => {
       </div>
       
       <p className="text-sm text-gray-600">{capitalScaling.explanation}</p>
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// LAYER 9: MODEL TRANSPARENCY
-// ═══════════════════════════════════════════════════════════════
-
-const TransparencyBlock = ({ transparency }) => {
-  if (!transparency) return null;
-  
-  return (
-    <div className="bg-gray-50 rounded-xl p-6 mb-8">
-      <h2 className="text-sm font-medium text-gray-500 mb-3">Model Transparency</h2>
-      <div className="flex items-center gap-8 text-xs text-gray-500">
-        <span>Version: {transparency.systemVersion}</span>
-        <span>Capital Scaling: {transparency.capitalScalingVersion}</span>
-        <span>Data: {transparency.dataAsOf}</span>
-        <span>Hash: {transparency.determinismHash}</span>
-        {transparency.frozen && <span className="text-amber-600">FROZEN</span>}
-      </div>
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// ADVANCED DECOMPOSITION (hidden by default)
-// ═══════════════════════════════════════════════════════════════
-
-const AdvancedBlock = ({ advanced }) => {
-  const [expanded, setExpanded] = useState(false);
-  
-  if (!advanced) return null;
-  
-  return (
-    <div className="bg-white rounded-xl p-6">
-      <button 
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center justify-between w-full text-left"
-      >
-        <h2 className="text-sm font-medium text-gray-500">Model Decomposition (Advanced)</h2>
-        {expanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-      </button>
-      
-      {expanded && (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-xs text-gray-400 uppercase">
-                <th className="text-left py-2">Horizon</th>
-                <th className="text-right py-2">Baseline</th>
-                <th className="text-right py-2">Replay</th>
-                <th className="text-right py-2">Combined</th>
-                <th className="text-right py-2">Macro Adj</th>
-                <th className="text-right py-2">Delta</th>
-              </tr>
-            </thead>
-            <tbody>
-              {advanced.horizons.map((h) => (
-                <tr key={h.horizon} className="border-t border-gray-100">
-                  <td className="py-2 font-medium">{h.horizon}D</td>
-                  <td className="text-right py-2">{h.synthetic > 0 ? '+' : ''}{h.synthetic}%</td>
-                  <td className="text-right py-2">{h.replay > 0 ? '+' : ''}{h.replay}%</td>
-                  <td className="text-right py-2">{h.hybrid > 0 ? '+' : ''}{h.hybrid}%</td>
-                  <td className="text-right py-2">{h.macroAdj > 0 ? '+' : ''}{h.macroAdj}%</td>
-                  <td className="text-right py-2 text-gray-400">{h.macroDelta > 0 ? '+' : ''}{h.macroDelta}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 };
@@ -605,7 +626,7 @@ const BrainOverviewPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Brain className="w-12 h-12 text-gray-300 mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-500">Loading Brain Overview...</p>
+          <p className="text-gray-500">Loading Macro Brain...</p>
           <p className="text-xs text-gray-400 mt-1">This may take up to 15 seconds</p>
         </div>
       </div>
@@ -637,7 +658,7 @@ const BrainOverviewPage = () => {
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Brain Overview</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Macro Brain</h1>
           <p className="text-gray-500 mt-1">Institutional AI Macro Risk Dashboard</p>
         </div>
         
@@ -665,11 +686,7 @@ const BrainOverviewPage = () => {
         {/* Layer 8: Capital Scaling */}
         <CapitalScalingBlock capitalScaling={data.capitalScaling} />
         
-        {/* Layer 9: Transparency */}
-        <TransparencyBlock transparency={data.transparency} />
-        
-        {/* Advanced (hidden by default) */}
-        <AdvancedBlock advanced={data.advanced} />
+        {/* No Model Transparency or Advanced blocks - admin only */}
       </div>
     </div>
   );
