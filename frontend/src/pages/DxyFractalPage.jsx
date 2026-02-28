@@ -797,8 +797,10 @@ const DxyFractalPage = () => {
         <div className="bg-white rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
             <ChartModes mode={chartMode} onModeChange={setChartMode} />
-            <div className="text-sm text-gray-500">
-              Current Price: <span className="font-medium text-gray-900">{data.currentPrice?.toFixed(2)}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-semibold text-gray-900 tracking-tight">{Math.floor(data.currentPrice || 0)}</span>
+              <span className="text-lg font-medium text-gray-400">.{((data.currentPrice || 0) % 1).toFixed(2).slice(2)}</span>
+              <span className="text-xs text-gray-400 ml-1">DXY</span>
             </div>
           </div>
           {/* Real Chart - different components for different modes */}
