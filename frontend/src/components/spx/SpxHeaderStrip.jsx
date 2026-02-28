@@ -1,108 +1,62 @@
 /**
- * SPX HEADER STRIP — Intelligence Summary
+ * SPX HEADER STRIP — Intelligence Summary (State-Oriented)
  * 
- * BLOCK B5.8 + B6.7 + B6.8.4 — Top bar showing Phase, Consensus, Action, Mode, Size, Lock, Guardrails
- * B6.8.4 additions: Phase Strength badge, Guardrail size cap, Consensus pulse mini-strip
+ * Unified with DXY philosophy:
+ * - BULLISH SPX / BEARISH SPX / NEUTRAL (not BUY/SELL)
+ * - Confidence
+ * - Risk
+ * - Market Phase
+ * 
+ * NO TRADE moved to Execution block
  */
 
 import React, { useEffect, useState } from 'react';
 
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
-// B6.8.4: Phase Strength Badge
-const PhaseStrengthBadge = ({ phase, strength }) => {
-  if (!phase) return null;
-  
-  // Calculate grade based on strength
-  const grade = strength > 0.8 ? 'A' : strength > 0.6 ? 'B' : strength > 0.4 ? 'C' : strength > 0.2 ? 'D' : 'F';
-  
-  const gradeColors = {
-    A: 'bg-emerald-500 text-white',
-    B: 'bg-green-500 text-white',
-    C: 'bg-yellow-500 text-slate-900',
-    D: 'bg-orange-500 text-white',
-    F: 'bg-red-500 text-white',
-  };
-  
-  return (
-    <div 
-      className="flex items-center gap-1.5 px-2 py-1 bg-slate-800 rounded-lg"
-      data-testid="spx-phase-strength"
-      title={`Phase strength: ${(strength * 100).toFixed(0)}%`}
-    >
-      <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${gradeColors[grade]}`}>
-        {grade}
-      </span>
-      <span className="text-slate-400 text-xs">
-        {(strength * 100).toFixed(0)}%
-      </span>
-    </div>
-  );
+// Convert action/consensus to market state
+const getMarketState = (action, consensusIndex, direction) => {
+  if (direction === 'BULL' || action === 'BUY' || consensusIndex > 60) return 'BULLISH';
+  if (direction === 'BEAR' || action === 'SELL' || consensusIndex < 40) return 'BEARISH';
+  return 'NEUTRAL';
 };
 
-// B6.8.4: Consensus Pulse Mini Strip (7 days history)
-const ConsensusPulseMini = ({ votes }) => {
-  // Use last 7 votes or generate sample
-  const pulseData = votes?.slice(-7) || [];
-  
-  if (pulseData.length === 0) return null;
-  
-  return (
-    <div 
-      className="flex items-center gap-0.5 px-2 py-1 bg-slate-800 rounded-lg"
-      data-testid="spx-consensus-pulse-mini"
-      title="7-day consensus history"
-    >
-      <span className="text-slate-500 text-[10px] mr-1">7d</span>
-      {pulseData.map((v, i) => {
-        const value = typeof v === 'object' ? v.score : v;
-        const color = value > 0.6 ? 'bg-emerald-500' : value < 0.4 ? 'bg-red-500' : 'bg-yellow-500';
-        return (
-          <div 
-            key={i} 
-            className={`w-1.5 h-4 rounded-sm ${color}`}
-            style={{ opacity: 0.5 + (i / pulseData.length) * 0.5 }}
-          />
-        );
-      })}
-    </div>
-  );
+const getStateColor = (state) => {
+  switch (state) {
+    case 'BULLISH': return 'text-emerald-600';
+    case 'BEARISH': return 'text-red-500';
+    default: return 'text-gray-500';
+  }
 };
 
-// B6.8.4: Guardrail Badge with Size Cap
-const GuardrailBadge = ({ guardrails }) => {
-  if (!guardrails) return null;
-  
-  const statusColors = {
-    ALLOW: 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400',
-    BLOCK: 'bg-red-500/20 border-red-500/50 text-red-400',
-    CAUTION: 'bg-amber-500/20 border-amber-500/50 text-amber-400',
+const getRiskColor = (risk) => {
+  if (!risk) return 'text-gray-600 bg-gray-100';
+  const r = risk.toUpperCase();
+  if (r === 'STRESS' || r === 'HIGH') return 'text-red-600 bg-red-100';
+  if (r === 'ELEVATED' || r === 'MEDIUM') return 'text-amber-600 bg-amber-100';
+  if (r === 'LOW') return 'text-emerald-600 bg-emerald-100';
+  return 'text-gray-600 bg-gray-100';
+};
+
+const getPhaseLabel = (phase) => {
+  if (!phase) return 'Unknown';
+  const phaseMap = {
+    'BULL_EXPANSION': 'Markup',
+    'BULL_COOLDOWN': 'Distribution',
+    'BEAR_DRAWDOWN': 'Markdown',
+    'BEAR_RALLY': 'Accumulation',
+    'SIDEWAYS_RANGE': 'Ranging',
+    'MARKUP': 'Markup',
+    'MARKDOWN': 'Markdown',
+    'DISTRIBUTION': 'Distribution',
+    'ACCUMULATION': 'Accumulation',
   };
-  
-  const sizeCap = guardrails.sizeCap || guardrails.sizeCapPct || null;
-  
-  return (
-    <div 
-      className={`flex items-center gap-2 px-2 py-1 rounded border text-xs font-bold ${statusColors[guardrails.globalStatus] || statusColors.CAUTION}`}
-      data-testid="spx-guardrails-badge"
-    >
-      <span>{guardrails.globalStatus}</span>
-      {sizeCap && sizeCap < 100 && (
-        <span className="px-1 py-0.5 bg-slate-800 rounded text-[10px] text-slate-300">
-          Cap: {sizeCap}%
-        </span>
-      )}
-      {guardrails.edgeUnlocked && guardrails.edgeUnlocked !== 'NONE' && (
-        <span className="text-emerald-300">●</span>
-      )}
-    </div>
-  );
+  return phaseMap[phase] || phase.replace(/_/g, ' ');
 };
 
 const SpxHeaderStrip = ({ pack, consensus }) => {
   const [guardrails, setGuardrails] = useState(null);
   
-  // Fetch guardrails summary
   useEffect(() => {
     fetch(`${API_BASE}/api/spx/v2.1/guardrails/summary`)
       .then(res => res.json())
@@ -114,130 +68,69 @@ const SpxHeaderStrip = ({ pack, consensus }) => {
   
   if (!pack && !consensus) {
     return (
-      <div className="bg-slate-900 border-b border-slate-700 px-4 py-3">
-        <span className="text-slate-400 text-sm">Loading intelligence...</span>
+      <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <span className="text-gray-400 text-sm">Loading intelligence...</span>
       </div>
     );
   }
 
-  const phase = pack?.phase?.phase || pack?.phaseIdAtNow?.phase || 'N/A';
+  const phase = pack?.phase?.phase || pack?.phaseIdAtNow?.phase || 'NEUTRAL';
   const phaseStrength = pack?.phase?.strength || pack?.phaseIdAtNow?.strength || 0.5;
-  const currentFlags = pack?.phase?.flags || pack?.currentFlags || [];
   
-  // Consensus data (from consensus prop or derived from pack)
+  // Consensus data
   const consensusIndex = consensus?.consensusIndex || Math.round((pack?.overlay?.stats?.hitRate || 0.5) * 100);
   const direction = consensus?.direction || (pack?.overlay?.stats?.medianReturn > 0 ? 'BULL' : pack?.overlay?.stats?.medianReturn < 0 ? 'BEAR' : 'NEUTRAL');
   const action = consensus?.resolved?.action || 'HOLD';
-  const mode = consensus?.resolved?.mode || 'NO_TRADE';
-  const sizeMultiplier = consensus?.resolved?.sizeMultiplier || 1.0;
-  const structuralLock = consensus?.structuralLock || false;
-  const consensusVotes = consensus?.votes || [];  // B6.8.4
-
-  // Arrow based on consensus
-  const arrow = consensusIndex > 60 ? '↑' : consensusIndex < 40 ? '↓' : '→';
-
-  // Color mappings
-  const phaseColors = {
-    BULL_EXPANSION: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-    BULL_COOLDOWN: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    BEAR_DRAWDOWN: 'bg-red-500/20 text-red-400 border-red-500/30',
-    BEAR_RALLY: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-    SIDEWAYS_RANGE: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
-  };
-
-  const actionColors = {
-    BUY: 'text-emerald-400',
-    SELL: 'text-red-400',
-    HOLD: 'text-slate-400',
-    NO_TRADE: 'text-slate-500',
-  };
-
-  const modeColors = {
-    TREND_FOLLOW: 'text-blue-400',
-    COUNTER_TREND: 'text-orange-400',
-    NO_TRADE: 'text-slate-500',
-  };
+  
+  // Calculate market state (state-oriented, not action-oriented)
+  const marketState = getMarketState(action, consensusIndex, direction);
+  const stateLabel = marketState === 'BULLISH' ? 'BULLISH SPX' : 
+                     marketState === 'BEARISH' ? 'BEARISH SPX' : 'NEUTRAL';
+  
+  // Risk level
+  const riskLevel = guardrails?.globalStatus === 'BLOCK' ? 'STRESS' : 
+                    guardrails?.globalStatus === 'CAUTION' ? 'ELEVATED' : 'NORMAL';
 
   return (
     <div 
-      className="bg-slate-900 border-b border-slate-700 px-4 py-3 flex items-center gap-6 flex-wrap"
+      className="bg-white border-b border-gray-200 px-6 py-3"
       data-testid="spx-header-strip"
     >
-      {/* Phase Badge */}
-      <div 
-        className={`px-3 py-1.5 rounded-lg border ${phaseColors[phase] || phaseColors.SIDEWAYS_RANGE}`}
-        data-testid="spx-phase-badge"
-      >
-        <span className="text-xs font-semibold uppercase tracking-wide">{phase.replace(/_/g, ' ')}</span>
-      </div>
-      
-      {/* B6.8.4: Phase Strength Badge */}
-      <PhaseStrengthBadge phase={phase} strength={phaseStrength} />
-
-      {/* VOL_SHOCK Flag */}
-      {currentFlags.includes('VOL_SHOCK') && (
-        <div className="px-2 py-1 bg-red-500/30 border border-red-500/50 rounded text-red-300 text-xs font-bold animate-pulse">
-          ⚡ VOL_SHOCK
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          {/* Market State */}
+          <span className={`text-sm font-semibold ${getStateColor(marketState)}`} data-testid="spx-market-state">
+            {stateLabel}
+          </span>
+          
+          {/* Confidence */}
+          <div className="text-sm">
+            <span className="text-gray-400">Confidence:</span>
+            <span className="ml-1 font-medium text-gray-900">{consensusIndex}%</span>
+          </div>
+          
+          {/* Risk */}
+          <div className="text-sm">
+            <span className="text-gray-400">Risk:</span>
+            <span className={`ml-1 px-2 py-0.5 rounded text-xs font-medium ${getRiskColor(riskLevel)}`}>
+              {riskLevel}
+            </span>
+          </div>
+          
+          {/* Phase */}
+          <div className="text-sm">
+            <span className="text-gray-400">Phase:</span>
+            <span className="ml-1 font-medium text-gray-900">{getPhaseLabel(phase)}</span>
+            <span className="ml-1 text-gray-400 text-xs">({Math.round(phaseStrength * 100)}%)</span>
+          </div>
         </div>
-      )}
-      
-      {/* B6.7 Guardrails Status - Enhanced with B6.8.4 */}
-      {guardrails && (
-        <GuardrailBadge guardrails={guardrails} />
-      )}
-
-      {/* B6.8.4: Consensus Pulse Mini (7d) */}
-      {consensusVotes.length > 0 && (
-        <ConsensusPulseMini votes={consensusVotes} />
-      )}
-
-      {/* Consensus Index */}
-      <div className="flex items-center gap-2" data-testid="spx-consensus">
-        <span className="text-slate-400 text-sm">Consensus</span>
-        <span className={`text-lg font-bold ${
-          consensusIndex > 60 ? 'text-emerald-400' : 
-          consensusIndex < 40 ? 'text-red-400' : 'text-slate-300'
-        }`}>
-          {consensusIndex} {arrow}
-        </span>
-      </div>
-
-      {/* Action */}
-      <div className="flex items-center gap-2" data-testid="spx-action">
-        <span className="text-slate-400 text-sm">Action</span>
-        <span className={`text-lg font-bold ${actionColors[action]}`}>
-          {action}
-        </span>
-      </div>
-
-      {/* Mode */}
-      <div className="flex items-center gap-2" data-testid="spx-mode">
-        <span className="text-slate-400 text-sm">Mode</span>
-        <span className={`text-sm font-medium ${modeColors[mode]}`}>
-          {mode.replace(/_/g, ' ')}
-        </span>
-      </div>
-
-      {/* Size Multiplier */}
-      <div className="flex items-center gap-2" data-testid="spx-size">
-        <span className="text-slate-400 text-sm">Size</span>
-        <span className={`text-sm font-bold ${
-          sizeMultiplier >= 1 ? 'text-emerald-400' : 
-          sizeMultiplier >= 0.7 ? 'text-yellow-400' : 'text-red-400'
-        }`}>
-          {sizeMultiplier.toFixed(2)}x
-        </span>
-      </div>
-
-      {/* Structural Lock */}
-      {structuralLock && (
-        <div 
-          className="px-2 py-1 bg-amber-500/20 border border-amber-500/50 rounded text-amber-400 text-xs font-bold"
-          data-testid="spx-structural-lock"
-        >
-          STRUCTURAL LOCK
+        
+        <div className="flex items-center gap-4 text-xs text-gray-500">
+          <span className="px-2 py-1 rounded bg-emerald-100 text-emerald-700">
+            REAL
+          </span>
         </div>
-      )}
+      </div>
     </div>
   );
 };
