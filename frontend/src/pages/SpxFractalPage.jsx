@@ -781,7 +781,7 @@ const SpxFractalPage = () => {
         const transformedData = {
           header: {
             signal: decision.signal || 'HOLD',
-            confidence: decision.confidence || 50,
+            confidence: Math.round((decision.confidence || 0.5) * 100),
             risk: decision.riskLevel || 'NORMAL',
             regime: phase,
             asOf: spxData.contract?.asOf || new Date().toISOString(),
@@ -794,7 +794,7 @@ const SpxFractalPage = () => {
             rangeP10: (horizonData.p10Return || -0.05) * 100,
             rangeP90: (horizonData.p90Return || 0.05) * 100,
             positionMultiplier: decision.positionSize || 1,
-            confidence: decision.confidence || 50,
+            confidence: Math.round((decision.confidence || 0.5) * 100),
             horizon: horizon,
             invalidations: decision.invalidations || [],
           },
