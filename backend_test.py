@@ -267,10 +267,10 @@ class DxyFractalTester:
         return True  # Admin accessibility is not critical
     
     def run_all_tests(self):
-        """Run all backend API tests"""
+        """Run all DXY Fractal backend API tests"""
         print("="*60)
-        print("🚀 STARTING BACKEND API TESTING")
-        print("🏢 GitHub Repository: dt54edcv")
+        print("🚀 STARTING DXY FRACTAL BACKEND API TESTING")
+        print("💰 Testing DXY Decision Engine Components")
         print("🔗 Backend URL:", self.base_url)
         print("="*60)
         
@@ -279,12 +279,9 @@ class DxyFractalTester:
             print("\n❌ CRITICAL: Health endpoint failed - stopping tests")
             return False
         
-        # Core functionality tests
-        self.test_brain_overview()
-        self.test_brain_decision_v4()  # New Brain v4 test
-        self.test_dxy_macro_series() 
-        self.test_fractal_endpoints()
-        self.test_admin_endpoints()
+        # Core DXY Fractal functionality tests
+        self.test_dxy_fractal_overview()
+        self.test_dxy_fractal_with_params()
         
         # Print summary
         print("\n" + "="*60)
