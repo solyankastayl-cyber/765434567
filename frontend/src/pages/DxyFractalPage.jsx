@@ -827,7 +827,7 @@ const DxyFractalPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Strip */}
-      <HeaderStrip header={data.header} />
+      <HeaderStrip header={data.header} verdict={data.verdict} />
       
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Title */}
