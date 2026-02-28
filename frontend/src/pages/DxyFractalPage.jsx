@@ -98,7 +98,7 @@ const Tooltip = ({ children, content }) => {
   
   return (
     <span
-      className="cursor-help border-b border-dotted border-gray-400"
+      className="relative cursor-help"
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
     >
