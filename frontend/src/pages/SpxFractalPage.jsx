@@ -964,4 +964,4 @@ const SpxFractalPage = () => {
   );
 };
 
-export default DxyFractalPage;
+export default SpxFractalPage;
