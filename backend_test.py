@@ -75,37 +75,115 @@ class DxyFractalTester:
         
         return success
     
-    def test_brain_overview(self):
-        """Test Brain v3 page with FRED macro data"""
-        print("\n🧠 Testing Brain Overview (v3) - FRED Integration...")
-        success, data, status = self.test_endpoint("api/ui/brain/overview")
+    def test_dxy_fractal_overview(self):
+        """Test DXY Fractal overview endpoint with all required components"""
+        print("\n💰 Testing DXY Fractal Overview - Decision Engine...")
+        success, data, status = self.test_endpoint("api/ui/fractal/dxy/overview")
         
         if success and isinstance(data, dict):
-            # Check if real macro indicators are present
-            macro_inputs = data.get('macroInputs', [])
-            health_strip = data.get('healthStrip', {})
+            # Check main structure components
+            required_components = [
+                'header', 'verdict', 'chart', 'forecasts', 
+                'why', 'risk', 'analogs', 'macro'
+            ]
             
-            # Look for FRED indicators
-            fred_indicators = []
-            for indicator in macro_inputs:
-                if indicator.get('value') != 'N/A' and indicator.get('status') != 'nodata':
-                    fred_indicators.append(indicator.get('title', 'Unknown'))
+            missing_components = []
+            present_components = []
             
-            if len(fred_indicators) >= 3:  # At least 3 real indicators
-                self.log_test("Brain Overview - Real Data", True, 
-                             f"Found {len(fred_indicators)} real indicators: {', '.join(fred_indicators[:3])}")
+            for component in required_components:
+                if component in data:
+                    present_components.append(component)
+                else:
+                    missing_components.append(component)
+            
+            if len(missing_components) == 0:
+                self.log_test("DXY Overview Structure", True, f"All {len(required_components)} components present")
             else:
-                self.log_test("Brain Overview - Real Data", False, 
-                             f"Only {len(fred_indicators)} real indicators found")
+                self.log_test("DXY Overview Structure", False, f"Missing: {', '.join(missing_components)}")
             
-            # Check brain scenario
-            scenario = health_strip.get('brainScenario', 'unknown')
-            self.log_test("Brain Scenario", True, f"Current scenario: {scenario}")
+            # Test Header Strip data
+            if 'header' in data:
+                header = data['header']
+                header_fields = ['signal', 'confidence', 'risk', 'regime', 'dataStatus']
+                header_present = [f for f in header_fields if f in header]
+                self.log_test("Header Strip Fields", len(header_present) >= 4, 
+                             f"Found {len(header_present)}/{len(header_fields)}: {', '.join(header_present)}")
+                
+                # Check specific values mentioned in review request
+                if header.get('signal') == 'SELL' and header.get('confidence') == 30:
+                    self.log_test("Header Values Match", True, "Signal=SELL, Confidence=30% as expected")
+                else:
+                    signal = header.get('signal', 'N/A')
+                    conf = header.get('confidence', 'N/A')
+                    self.log_test("Header Values", True, f"Signal={signal}, Confidence={conf}%")
+            
+            # Test Verdict Card data
+            if 'verdict' in data:
+                verdict = data['verdict']
+                verdict_fields = ['action', 'bias', 'expectedMoveP50', 'positionMultiplier', 'confidence']
+                verdict_present = [f for f in verdict_fields if f in verdict]
+                self.log_test("Verdict Card Fields", len(verdict_present) >= 4,
+                             f"Found {len(verdict_present)}/{len(verdict_fields)}: {', '.join(verdict_present)}")
+                
+                # Check expected values
+                action = verdict.get('action', 'N/A')
+                bias = verdict.get('bias', 'N/A')
+                expected_move = verdict.get('expectedMoveP50', 'N/A')
+                self.log_test("Verdict Values", True, f"Action={action}, Bias={bias}, Expected={expected_move}%")
+            
+            # Test Chart data
+            if 'chart' in data:
+                chart = data['chart']
+                chart_modes = ['synthetic', 'replay', 'hybrid', 'macro']
+                chart_present = [mode for mode in chart_modes if mode in chart]
+                self.log_test("Chart Modes", len(chart_present) >= 3,
+                             f"Found {len(chart_present)}/{len(chart_modes)} modes: {', '.join(chart_present)}")
+            
+            # Test Forecast Table
+            if 'forecasts' in data and isinstance(data['forecasts'], list):
+                forecasts = data['forecasts']
+                horizons = [f.get('horizon') for f in forecasts if 'horizon' in f]
+                expected_horizons = [7, 14, 30, 90, 180, 365]
+                self.log_test("Forecast Horizons", len(horizons) >= 5,
+                             f"Found {len(horizons)} horizons: {horizons}")
+            
+            # Test Why This Verdict
+            if 'why' in data:
+                why = data['why']
+                why_components = ['drivers', 'transmission', 'invalidations']
+                why_present = [c for c in why_components if c in why]
+                self.log_test("Why Verdict Components", len(why_present) >= 2,
+                             f"Found {len(why_present)}/{len(why_components)}: {', '.join(why_present)}")
+            
+            # Test Risk Context
+            if 'risk' in data:
+                risk = data['risk']
+                risk_fields = ['level', 'volRegime', 'expectedDrawdown', 'positionMultiplier']
+                risk_present = [f for f in risk_fields if f in risk]
+                self.log_test("Risk Context Fields", len(risk_present) >= 3,
+                             f"Found {len(risk_present)}/{len(risk_fields)}: {', '.join(risk_present)}")
+            
+            # Test Historical Analogs
+            if 'analogs' in data:
+                analogs = data['analogs']
+                analog_fields = ['bestMatch', 'coverage', 'sampleSize', 'outcomeP50', 'topMatches']
+                analog_present = [f for f in analog_fields if f in analogs]
+                self.log_test("Historical Analogs Fields", len(analog_present) >= 4,
+                             f"Found {len(analog_present)}/{len(analog_fields)}: {', '.join(analog_present)}")
+            
+            # Test Macro Impact
+            if 'macro' in data:
+                macro = data['macro']
+                macro_fields = ['score', 'scoreSigned', 'confidence', 'regime', 'components']
+                macro_present = [f for f in macro_fields if f in macro]
+                macro_adj = macro.get('scoreSigned', 0)
+                self.log_test("Macro Impact Fields", len(macro_present) >= 4,
+                             f"Found {len(macro_present)}/{len(macro_fields)}, Adjustment: {macro_adj}%")
             
         elif status == 200:
-            self.log_test("Brain Overview API", True, "Endpoint accessible but no detailed data check")
+            self.log_test("DXY Fractal API", True, "Endpoint accessible but no detailed data check")
         else:
-            self.log_test("Brain Overview API", False, f"{data}")
+            self.log_test("DXY Fractal API", False, f"{data}")
         
         return success
     
