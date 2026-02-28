@@ -728,15 +728,29 @@ const DxyFractalPage = () => {
         
         {/* Chart Mode Switcher */}
         <div className="bg-white rounded-xl p-4 mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <ChartModes mode={chartMode} onModeChange={setChartMode} />
             <div className="text-sm text-gray-500">
               Current Price: <span className="font-medium text-gray-900">{data.currentPrice?.toFixed(2)}</span>
             </div>
           </div>
-          {/* Chart placeholder - integrate with existing FractalMainChart */}
-          <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-            Chart Component ({chartMode} mode)
+          {/* Real Chart - using existing FractalHybridChart */}
+          <div className="min-h-[420px]">
+            {chartLoading ? (
+              <div className="h-[420px] bg-gray-50 rounded-lg flex items-center justify-center">
+                <div className="text-gray-400">Loading chart...</div>
+              </div>
+            ) : (
+              <FractalHybridChart
+                symbol="DXY"
+                width={1100}
+                height={420}
+                focus={focusStr}
+                focusPack={focusData}
+                viewMode="ABS"
+                mode={chartMode === 'macro' ? 'macro' : 'hybrid'}
+              />
+            )}
           </div>
         </div>
         
