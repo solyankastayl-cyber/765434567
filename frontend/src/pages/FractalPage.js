@@ -555,6 +555,11 @@ const FractalTerminal = ({ asset = 'BTC' }) => {
                   mode="macro"
                 />
               )}
+              
+              {/* SPX Macro Overlay Mode */}
+              {chartMode === 'macro' && symbol === 'SPX' && (
+                <SpxMacroView horizon={focus} />
+              )}
             </>
           )}
         </div>
