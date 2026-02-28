@@ -35,6 +35,7 @@ import MacroPanel from '../components/fractal/MacroPanel';
 import FractalEngineBreakdown from '../components/fractal/FractalEngineBreakdown';
 import MacroLayerPanel from '../components/fractal/MacroLayerPanel';
 import OutcomesRiskPanel from '../components/fractal/OutcomesRiskPanel';
+import { SpxMacroView } from '../components/spx/SpxMacroOverlay';
 import { useFocusPack, HORIZONS, getTierColor, getTierLabel } from '../hooks/useFocusPack';
 import { useConsensusPulse } from '../hooks/useConsensusPulse';
 
