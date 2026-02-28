@@ -40,11 +40,26 @@ const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 // HELPERS & COLORS
 // ═══════════════════════════════════════════════════════════════
 
-const getActionColor = (action) => {
-  switch (action) {
-    case 'BUY': return 'text-emerald-600 bg-emerald-50';
-    case 'SELL': return 'text-red-600 bg-red-50';
-    default: return 'text-gray-600 bg-gray-50';
+// Convert action to market state
+const actionToState = (action, bias) => {
+  if (action === 'BUY' || bias === 'USD_UP') return 'BULLISH';
+  if (action === 'SELL' || bias === 'USD_DOWN') return 'BEARISH';
+  return 'HOLD';
+};
+
+const getStateColor = (state) => {
+  switch (state) {
+    case 'BULLISH': return 'text-emerald-600';
+    case 'BEARISH': return 'text-red-500';
+    default: return 'text-gray-500';
+  }
+};
+
+const getStateBgColor = (state) => {
+  switch (state) {
+    case 'BULLISH': return 'bg-emerald-50';
+    case 'BEARISH': return 'bg-red-50';
+    default: return 'bg-gray-50';
   }
 };
 
@@ -54,6 +69,12 @@ const getBiasIcon = (bias) => {
     case 'USD_DOWN': return TrendingDown;
     default: return Minus;
   }
+};
+
+const getBiasArrow = (bias) => {
+  if (bias === 'USD_UP') return '↑';
+  if (bias === 'USD_DOWN') return '↓';
+  return '—';
 };
 
 const getRiskColor = (risk) => {
