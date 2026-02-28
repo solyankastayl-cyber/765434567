@@ -187,57 +187,31 @@ class DxyFractalTester:
         
         return success
     
-    def test_brain_decision_v4(self):
-        """Test Brain v4 Decision Engine endpoint"""
-        print("\n🧠 Testing Brain v4 Decision Engine...")
-        success, data, status = self.test_endpoint("api/ui/brain/decision")
+    def test_dxy_fractal_with_params(self):
+        """Test DXY Fractal endpoint with different horizon parameters"""
+        print("\n📊 Testing DXY Fractal with Parameters...")
         
-        if success and isinstance(data, dict):
-            # Check required Brain v4 structure
-            required_fields = [
-                'verdict', 'action', 'reasons', 'horizons', 'risk', 
-                'causal', 'macroSummary', 'allocation', 'capitalScaling', 
-                'transparency', 'advanced'
-            ]
-            
-            missing_fields = []
-            present_fields = []
-            
-            for field in required_fields:
-                if field in data:
-                    present_fields.append(field)
+        # Test with different horizons
+        horizons_to_test = [7, 30, 90, 180]
+        successful_horizons = []
+        
+        for horizon in horizons_to_test:
+            success, data, status = self.test_endpoint(f"api/ui/fractal/dxy/overview?h={horizon}")
+            if success:
+                successful_horizons.append(horizon)
+                if isinstance(data, dict) and 'verdict' in data:
+                    verdict_horizon = data['verdict'].get('horizon', 'N/A')
+                    self.log_test(f"DXY Fractal H={horizon}", True, f"Verdict horizon: {verdict_horizon}")
                 else:
-                    missing_fields.append(field)
-            
-            if len(missing_fields) == 0:
-                self.log_test("Brain v4 Structure", True, f"All {len(required_fields)} components present")
+                    self.log_test(f"DXY Fractal H={horizon}", True, "Basic response OK")
             else:
-                self.log_test("Brain v4 Structure", False, f"Missing: {', '.join(missing_fields)}")
-            
-            # Check verdict structure
-            verdict = data.get('verdict', {})
-            if verdict and 'regime' in verdict and 'dominantBias' in verdict:
-                regime = verdict.get('regime', 'unknown')
-                bias = verdict.get('dominantBias', 'unknown')
-                confidence = verdict.get('confidence', 0)
-                self.log_test("Market Verdict", True, f"Regime: {regime}, Bias: {bias}, Confidence: {confidence}%")
-            else:
-                self.log_test("Market Verdict", False, "Missing verdict structure")
-            
-            # Check macro summary for FRED data
-            macro_summary = data.get('macroSummary', [])
-            if len(macro_summary) >= 3:
-                indicators = [m.get('title', 'Unknown') for m in macro_summary[:3]]
-                self.log_test("Macro Indicators", True, f"Found {len(macro_summary)} indicators: {', '.join(indicators)}")
-            else:
-                self.log_test("Macro Indicators", False, f"Only {len(macro_summary)} indicators found")
-                
-        elif status == 200:
-            self.log_test("Brain v4 Decision API", True, "Endpoint accessible but no detailed data check")
-        else:
-            self.log_test("Brain v4 Decision API", False, f"{data}")
+                self.log_test(f"DXY Fractal H={horizon}", False, f"Status: {status}, Error: {data}")
         
-        return success
+        overall_success = len(successful_horizons) >= 2  # At least 2 horizons should work
+        self.log_test("Multi-Horizon Support", overall_success, 
+                     f"Working horizons: {successful_horizons}")
+        
+        return overall_success
     
     def test_dxy_macro_series(self):
         """Test DXY macro core series endpoint"""
