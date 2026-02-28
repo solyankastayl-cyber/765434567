@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for DXY Fractal Decision Engine
-Testing DXY Fractal overview endpoint and all required components
+Backend API Testing Script for Fractal Platform
+Testing all required endpoints from review request
 """
 
 import requests
@@ -9,8 +9,8 @@ import sys
 from datetime import datetime
 import json
 
-class DxyFractalTester:
-    def __init__(self, base_url="https://fractal-index-4.preview.emergentagent.com"):
+class FractalPlatformTester:
+    def __init__(self, base_url="https://spx-bitcoin-core.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
