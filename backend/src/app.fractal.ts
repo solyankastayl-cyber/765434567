@@ -656,6 +656,14 @@ async function main() {
   await brainOverviewRoutes(app);
   console.log('[Fractal] ✅ UI Brain registered at /api/ui/brain/*');
   
+  // ═══════════════════════════════════════════════════════════════
+  // UI DXY — DXY Fractal Overview Page
+  // ═══════════════════════════════════════════════════════════════
+  console.log('[Fractal] Registering UI DXY...');
+  const { dxyOverviewRoutes } = await import('./modules/ui-dxy/index.js');
+  await dxyOverviewRoutes(app);
+  console.log('[Fractal] ✅ UI DXY registered at /api/ui/fractal/dxy/*');
+  
   // Graceful shutdown
   const shutdown = async (signal: string) => {
     console.log(`[Fractal] Received ${signal}, shutting down...`);
